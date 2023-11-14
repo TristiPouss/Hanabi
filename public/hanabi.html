@@ -1,16 +1,15 @@
-<!doctype html>
-<html>
-
+<!DOCTYPE html>
+<html lang="FR">
 <head>
     <meta charset="UTF-8">
     <title>Chat pour les L3</title>
     <link rel="stylesheet" href="./styles/hanabi.css">
     <script src="/socket.io/socket.io.js"></script>
-    <script src="./js/chat.js"></script>
+    <script src="./js/hanabi.js"></script>
 </head>
 
 <body>
-    <input type="radio" name="btnScreen" id="radio1" checked>
+    <input type="radio" name="btnScreen" id="radio1">
     <div id="logScreen">
         <div id="connexion">
             <p>Choisissez votre pseudo : <br>
@@ -19,26 +18,28 @@
             </p>
         </div>
     </div>
-    <input type="radio" name="btnScreen" id="radio2">
+    <input type="radio" name="btnScreen" id="radio2" checked>
     <div id="content">
-        <h2>Chat des L3 - <span id="login"></span></h2>
-        <h3>Clients connectés</h3>
+        <header>
+            <h2>Hanami - <span id="login"></span></h2>
+            <h3>Nombre de joueurs connectés : <span id="nbJoueurs"></span></h3>
+        </header>
         <aside>
         </aside>
         <main>
+            <div id="othersCards">
+
+            </div>
+            <div id="gameBoard"></div>
         </main>
         <footer>
-            <input type="text" id="monMessage">
-            <input type="button" value="Envoyer" id="btnEnvoyer">
-            <input type="button" value="Image" id="btnImage">
-            <input type="button" value="Quitter" id="btnQuitter">
         </footer>
-        <div id="bcImage" style="display: none;">
+        <div id="bcIndications" style="display: none;">
             <header>
-                <input type="text" id="recherche" placeholder="Tapez ici le texte de votre recherche">
-                <input type="button" value="Recherche" id="btnRechercher">
+                <input type="radio" name="colorXORnumber" id="btnColor">
+                <input type="radio" name="colorXORnumber" id="btnNumber">
             </header>
-            <div id="bcResults"></div>
+            <div id="bcAideResults"></div>
             <footer><input type="button" value="Fermer" id="btnFermer"></footer>
         </div>
     </div>
