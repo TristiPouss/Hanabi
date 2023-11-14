@@ -1,0 +1,224 @@
+body {
+    padding: 0;
+    margin: 0;
+    font-family: sans-serif;
+}
+* {
+    box-sizing: border-box;   
+}
+body > div {
+    box-shadow: -10px 10px 20px #A0A0A0;
+    border: solid 1px #A0A0A0;
+}
+
+#content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    -webkit-transform: translateX(-50%) translateY(-50%);
+    -ms-transform: translateX(-50%) translateY(-50%);
+    height: 500px;
+    width: 700px;
+    background-color: beige;
+    padding: 10px;
+}
+#content h2, #content h3 {
+    position: absolute;
+    background-color: inherit;
+    height: 22px;
+    padding: 5px;
+    line-height: 16px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 5px 5px 0 0;
+    border-top: inherit;
+    border-left: inherit;
+    border-right: inherit;
+}
+#content h2 {
+    top: -35px;
+    left: -1px;
+}
+#content h3 {
+    right: -11px;
+    top: -28px;
+    transform-origin: left center;
+    transform: translateX(100%) rotate(90deg);
+}
+#content main {
+    position: relative;
+    height: calc(100% - 30px);
+    width: calc(100% - 170px);
+    background-color: white;
+    overflow-y: scroll;
+    line-height: 1.2;
+}
+#content main p {
+    line-height: 1;
+    font-size: 16px;
+    margin: 3px;
+}
+#content main .mp {
+    color: darkblue;   
+}
+#content main .moi {
+    color: green;   
+}
+#content main .system {
+    color: red;   
+}
+#content main img {
+    max-width: 50%;
+    vertical-align: text-top;
+}   
+
+/** Pied de zone de chat */        
+#content footer {
+    position: absolute; 
+    bottom: 0;
+    padding: 0px; 
+    width: calc(100% - 20px);
+    height: 30px;
+    background-color: inherit;
+}
+#content footer input {
+    height: 22px;
+    font-size: 15px;
+}
+#content > footer input:first-child {
+    width: calc(100% - 250px);
+    font-size: 12px;
+}
+#content > footer input:last-child {
+    float: right;
+}
+        
+#content aside {
+    width: 160px;
+    float: right;
+    margin: 0px;
+    padding: 5px;
+    height: calc(100% - 30px);
+    background-color: white;
+    line-height: 1;
+    font-size: 14px;
+}
+        
+/** 
+ * Style pour les émoticones
+ */
+.emoji {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    background-image: url("../images/emoji.png");
+    background-size: 72px 72px;
+}  
+.rire {
+    background-position: -4px -4px;   
+}
+.zzz {
+    background-position: -28px -4px;   
+}
+.love {
+    background-position: -52px -4px;   
+}
+.holala {
+    background-position: -4px -28px;   
+}
+.grrr {
+    background-position: -28px -28px;   
+}
+.triste {
+    background-position: -52px -28px;   
+}
+.sourire {
+    background-position: -4px -52px;   
+}
+.banane {
+    background-position: -28px -52px;   
+}
+.malade {
+    background-position: -52px -52px;   
+}
+        
+        
+body > div, body > input[type=radio] {
+    display: none;   
+}
+        
+input[type=radio]:checked + div {
+    display: block;   
+}
+    
+        
+#logScreen {
+    background: rgba(200, 200, 200, 0.8);
+    position: absolute; 
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+}
+#logScreen > div {
+    text-align: center;
+    width: 300px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    background-color: white;
+    transform: translateX(-50%) translateY(-50%);
+    -webkit-transform: translateX(-50%) translateY(-50%);
+    -ms-transform: translateX(-50%) translateY(-50%);
+    border: solid 2px #000;
+    border-radius: 10px;
+    box-shadow: 10px 10px 10px #000;
+}
+#logScreen input, #bcImages input {
+    padding: 3px;
+    font-size: 80%;
+    margin: 10px;
+}
+
+#bcImage {
+    width: 400px;
+    height: 80%;
+    transform: translate(-50%, -50%);
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    background: darkgrey;
+    border: solid 1px #333;
+    box-shadow: 10px 10px 10px #000;
+    border-radius: 5px;
+}
+#bcImage input[type=text] {
+    margin: 10px;
+    width: calc(100% - 120px);
+}
+#bcImage #btnFermer {
+    position: absolute; 
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+#bcImage #bcResults {
+    height: calc(100% - 80px);
+    background-color: white;
+    overflow: scroll;
+}
+#bcImage #bcResults {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-evenly;
+}
+#bcResults img {
+    width: 190px;
+    margin: 2px;
+    height: auto;
+    cursor: pointer;
+    align-self: center;
+}
