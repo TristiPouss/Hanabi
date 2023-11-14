@@ -1,0 +1,19 @@
+{
+  "name": "hanabi_maillard_de_saint_gilles",
+  "version": "1.0.0",
+  "description": "web recreation of the card game hanabi",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://disc.univ-fcomte.fr/cr700-gitlab/webavance2023/tp2b/hanabi_maillard_de_saint_gilles.git"
+  },
+  "author": "Maillard-Salin Paul, de Saint Gilles Tristan",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2"
+  }
+}
