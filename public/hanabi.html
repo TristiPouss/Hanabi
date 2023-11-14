@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Chat pour les L3</title>
+    <link rel="stylesheet" href="./styles/chat.css">
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="./js/chat.js"></script>
+</head>
+
+<body>
+    <input type="radio" name="btnScreen" id="radio1" checked>
+    <div id="logScreen">
+        <div id="connexion">
+            <p>Choisissez votre pseudo : <br>
+            <input type="text" id="pseudo" placeholder="Tapez ici votre pseudo" size="30">
+            <input type="button" value="Se connecter" id="btnConnecter">
+            </p>
+        </div>
+    </div>
+    <input type="radio" name="btnScreen" id="radio2">
+    <div id="content">
+        <h2>Chat des L3 - <span id="login"></span></h2>
+        <h3>Clients connectés</h3>
+        <aside>
+        </aside>
+        <main>
+        </main>
+        <footer>
+            <input type="text" id="monMessage">
+            <input type="button" value="Envoyer" id="btnEnvoyer">
+            <input type="button" value="Image" id="btnImage">
+            <input type="button" value="Quitter" id="btnQuitter">
+        </footer>
+        <div id="bcImage" style="display: none;">
+            <header>
+                <input type="text" id="recherche" placeholder="Tapez ici le texte de votre recherche">
+                <input type="button" value="Recherche" id="btnRechercher">
+            </header>
+            <div id="bcResults"></div>
+            <footer><input type="button" value="Fermer" id="btnFermer"></footer>
+        </div>
+    </div>
+</body>
+
+</html>
