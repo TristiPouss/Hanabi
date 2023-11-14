@@ -1,1 +1,41 @@
-node_modules
+# Ignore node_modules directory
+node_modules/
+
+# Ignore logs and other generated files
+logs/
+*.log
+npm-debug.log*
+
+# Ignore environment variables file
+.env
+
+# Ignore build artifacts
+build/
+dist/
+
+# Ignore local configuration files
+config/local.js
+
+# Ignore macOS system files
+.DS_Store
+
+# Ignore Visual Studio Code settings
+.vscode/
+
+# Ignore editor-specific files
+*.sublime-project
+*.sublime-workspace
+*.komodoproject
+.komodotools/
+
+# Ignore yarn.lock file (uncomment if using Yarn)
+# yarn.lock
+
+# Ignore package-lock.json file (uncomment if using npm)
+package-lock.json
+
+# Ignore .idea directory for IntelliJ IDEA (uncomment if using IntelliJ)
+# .idea/
+
+# Ignore .vs directory for Visual Studio (uncomment if using Visual Studio)
+.vs/
