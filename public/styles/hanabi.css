@@ -95,61 +95,71 @@ body > div {
 
     background:linear-gradient(to bottom right, #002142, #27435F)
 }        
-
+main {
+  display: grid;
+  grid-template: 15% 70% 15% / 15% 70% 15%;
+  
+}
 main #otherPlayer1 {
     display: flex;
-    position: absolute;
-    top: 0%;
-    left: 15%;
-    width: 70%;
-    height: 25%;
-    transform: rotate(180deg);
+    grid-column-start: 2;
+    grid-row-start: 1;
     justify-content: center;
-    background-color: violet;
+    background : violet;
+    flex-direction: row-reverse;
 }
 main #otherPlayer2 {
-    display: flex;
-    position: absolute;
-    top: 25%;
-    left: 0%;
-    width: 15%;
-    height: 50%;
-    transform: rotate(90deg);
-
+    
+    display: block;
+    margin:auto;
+    flex-wrap :nowrap;
+    flex-shrink: 0;
+    grid-row-start: 2;
+    grid-column-start:1;
     background-color: gold;
+    
 }
 main #otherPlayer3 {
-    display: flex;
-    position: absolute;
-    top: 25%;
-    left: 85%;
-    width: 15%;
-    transform: rotate(270deg);
-    height: 50%;
-    background-color: greenyellow;
+  display: block;
+  margin:auto;
+  grid-row-start: 2;
+  grid-column-start:3;
+  transform: rotate(0deg);
+  background-color: greenyellow;
+  
 }
 main #myCards {
-    display: flex;
-    position: absolute;
-    justify-content: center;
-    top: 75%;
-    left: 15%;
-    width: 70%;
-    height: 25%;
-    background-color: blue;
+  grid-row-start: 3;
+  grid-column-start:2;
+  display: flex;
+  justify-content: center;
+  align-items: end;
+  
+  background-color: blue;
 }
- 
-#myCards .card {
-    display: flex;
+
+main #gameBoard {
+  grid-row-start: 2;
+  grid-column-start:2;
+  display: flex;
+  justify-content: center;
+  background-color: black;
+}
+.card{
+  display: flex;
     height: 140px;
     width: 100px;
     background-color: yellow;
     border-radius: 10px;
     box-shadow: 0 10px 30px 5px rgba(0, 0, 0, 0.2);
+}
+
+#myCards .card {
   /*   margin-left: -50px; */
     transition: 0.4s ease-out;
     position: relative;
     left: 0px;
+    bottom: 10px;
   }
   
   #myCards .card:not(:first-child) {
@@ -168,49 +178,40 @@ main #myCards {
   }
 
   #otherPlayer1 .card {
-    display: flex;
-    height: 140px;
-    width: 100px;
-    background-color: yellow;
-    border-radius: 10px;
-    box-shadow: 0 10px 30px 5px rgba(0, 0, 0, 0.2);
   /*   margin-left: -50px; */
     transition: 0.4s ease-out;
     position: relative;
-    left: 0px;
+    right: 0px;
   }
   
   #otherPlayer1 .card:not(:first-child) {
-      margin-left: -50px;
+      margin-right: -50px;
   }
   
   #otherPlayer1 .card:hover {
-    transform: translateY(-20px);
+    transform: translateY(20px);
     transition: 0.4s ease-out;
   }
   
   #otherPlayer1 .card:hover ~ .card {
     position: relative;
-    left: 50px;
+    right: 50px;
     transition: 0.4s ease-out;
   }
 
 
   #otherPlayer2 .card {
-    display: flex;
-    height: 140px;
-    width: 100px;
-    background-color: yellow;
-    border-radius: 10px;
+    rotate: 90deg;
     box-shadow: 0 10px 30px 5px rgba(0, 0, 0, 0.2);
   /*   margin-left: -50px; */
     transition: 0.4s ease-out;
     position: relative;
-    left: 0px;
+    top: 0px;
+    left: 0px
   }
   
   #otherPlayer2 .card:not(:first-child) {
-      margin-left: -50px;
+      margin-top: -100px;
   }
   
   #otherPlayer2 .card:hover {
@@ -220,26 +221,22 @@ main #myCards {
   
   #otherPlayer2 .card:hover ~ .card {
     position: relative;
-    left: 50px;
     transition: 0.4s ease-out;
+    top: 60px;
   }
 
 
   #otherPlayer3 .card {
-    display: flex;
-    height: 140px;
-    width: 100px;
-    background-color: yellow;
-    border-radius: 10px;
-    box-shadow: 0 10px 30px 5px rgba(0, 0, 0, 0.2);
+    rotate: 270deg;
   /*   margin-left: -50px; */
     transition: 0.4s ease-out;
     position: relative;
     left: 0px;
+    top:0px;
   }
   
   #otherPlayer3 .card:not(:first-child) {
-      margin-left: -50px;
+      margin-top: -100px;
   }
   
   #otherPlayer3 .card:hover {
@@ -249,7 +246,7 @@ main #myCards {
   
   #otherPlayer3 .card:hover ~ .card {
     position: relative;
-    left: 50px;
+    top: 60px;
     transition: 0.4s ease-out;
   }
   
