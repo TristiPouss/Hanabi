@@ -107,6 +107,7 @@ body > div {
   z-index: 0;
 }
 .hill3 {
+  display: block;
     width:600px;
     height:1000px;
     background:#002142;
@@ -123,6 +124,7 @@ body > div {
 }
 .hill2 {
   width:800px;
+  display: block;
   height:1000px;
   background:#002142;
   z-index:3;
@@ -139,6 +141,7 @@ body > div {
 
 .hill1 {
   width:850px;
+  display: block;
   height:1000px;
   background:#002142;
   z-index:3;
@@ -156,6 +159,7 @@ body > div {
 .hill0 {
   width:850px;
   height:1000px;
+  display: block;
   background:#002142;
   z-index: 2;
   /*border:1px solid red;*/
@@ -172,6 +176,7 @@ body > div {
 .plain {
   width:1000px;
   height:1000px;
+  display: block;
   background:#002142;
   z-index: 1;
   /*border:1px solid red;*/
@@ -187,6 +192,7 @@ body > div {
 
 .moon {
   width:200px;
+  display: block;
   height:200px;
   background:#002142;
   z-index: 4;
@@ -201,15 +207,17 @@ body > div {
   background: #f0f0f0
 }
 
-.hill0[selected], 
-.hill1[selected], 
-.hill2[selected],
-.hill3[selected],
-.plain[selected],
-.moon[selected] {
-  animation: 0.4s ease-out; 
-  bottom: -150000px;
+.hill3.selected,
+.hill0.selected, 
+.hill1.selected, 
+.hill2.selected, 
+.plain.selected, 
+.moon.selected{
+  animation: 200s ease-out; 
+  bottom: -1500px;
 }
+
+.hill
 
 #moonEA:hover {
   background: transparent url(../images/rei_ayanami_plush.png) no-repeat center center;
