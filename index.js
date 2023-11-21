@@ -18,7 +18,24 @@ app.get('/', function(req, res) {
 
 /*** Gestion des lobbys ***/
 
-lobbyList = [];
+let lobbyArray = [];
+
+function seekLobby(name){
+    lobbyArray.forEach(lobby => {
+        if(lobby.name == name){
+            return lobby;
+        }
+    });
+    return null;
+}
+
+function checkLobby(){
+    lobbyArray.forEach(l => {
+        if(l.littlePlayers.length == 0){
+            delete lobbyArray[l];
+        }
+    });
+}
 
 /*** Gestion des clients et des connexions ***/
 var clients = {};       // id -> socket
@@ -45,16 +62,43 @@ io.on('connection', function (socket) {
         socket.emit("bienvenue", id);
         // envoi de la nouvelle liste à tous les clients connectés
         io.sockets.emit("listClient", Object.keys(clients));
+        // envoi de la liste de lobby à ce client
+        socket.emit("listLobby", JSON.stringify(lobbyArray));
     });
 
     /**
      * Creation de lobby
      */
     socket.on("createLobby", function(name){
+        while(seekLobby(name) != null){
+            name = name + "(1)";
+        }
         let l = {"name": name, "creator": currentID, "littlePlayers":[currentID]};
-        lobbyList.push(l);
+        lobbyArray.push(l);
         // envoi de la nouvelle liste de lobby à tous les clients connectés
-        io.sockets.emit("listLobby", JSON.stringify(lobbyList));
+        io.sockets.emit("listLobby", JSON.stringify(lobbyArray));
+    });
+
+    socket.on("connectLobby", function(name){
+        let lobby = seekLobby(name);
+        if(lobby == null){console.log("FF");}
+        lobby.littlePlayers.push(currentID);
+        // envoi de la nouvelle liste de lobby à tous les clients connectés
+        io.sockets.emit("listLobby", JSON.stringify(lobbyArray));
+    });
+
+    socket.on("disconnectLobby", function(name){
+        let lobby = seekLobby(name);
+        if(lobby == null){console.log("FF");}
+        for(let i = 0; i<lobby.littlePlayers.length; ++i){
+            if(lobby.littlePlayers[i] == currentID){
+                delete lobby.littlePlayers[i];
+                break;
+            }
+        }
+        checkLobby();
+        // envoi de la nouvelle liste de lobby à tous les clients connectés
+        io.sockets.emit("listLobby", JSON.stringify(lobbyArray));
     });
 
     /**

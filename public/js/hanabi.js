@@ -15,6 +15,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     const btnConnecter = document.getElementById("btnConnecter");
     const btnCreer = document.getElementById("btnCreer");
+    const btnQuitter = document.getElementById("btnQuitter");
 
     const loginPage = document.getElementById("radio1");
     const lobbyListPage = document.getElementById("radio2");
@@ -55,8 +56,14 @@ document.addEventListener("DOMContentLoaded", function() {
             lobbyArray = JSON.parse(l);
             console.log(lobbyArray);
             lobbyList.innerHTML = ""; // reset
-            lobbyArray.forEach(lobby => {
-                lobbyList.innerHTML += "<li>"+lobby.name+"</li>";
+            lobbyArray.forEach(_lobby => {
+                let li = document.createTextNode("<li>"+_lobby.name+" - "+_lobby.littlePlayers.length+"/4</li>");
+                li.addEventListener("click", function() {
+                    lobby = _lobby.name;
+                    socket.emit("connectLobby", lobby);
+                    goToLobby();
+                });
+                lobbyList.appendChild(li);
             });
         }
     });
@@ -64,21 +71,59 @@ document.addEventListener("DOMContentLoaded", function() {
     btnCreer.addEventListener("click", function() {
         let name = checkLobbyName(preventInjection(lobbyName.value.trim()));
         if(name != null && name != ""){ 
-            lobbyListPage.checked = false;
             socket.emit("createLobby", name);
             lobby = name;
-            lobbyPage.checked = true;
-            document.querySelectorAll(".hill0,.hill1,.hill2,.hill3,.plain,.moon").forEach(element => {
-                console.log(element.className);
-                element.setAttribute("class",element.className + " selected");
-            });
+            goToLobby();
         }else{
             alert("Le nom du lobby n'est pas valide.\nIl ne doit pas contenir de caractère spécial ou d'espace.");
             lobbyName.value = "";
         }
     });
 
+    btnQuitter.addEventListener("click", function() {
+        socket.emit("disconnectLobby", lobby);
+        lobby = null;
+        goToLobbyList();
+    });
+
     /*** Misc ***/
+
+    document.addEventListener("keypress", function(e){
+        if(e.key == "Enter"){
+            if(loginPage.checked){
+                btnConnecter.click();
+            }else if(lobbyListPage){
+                btnCreer.click();
+            }
+        }
+    })
+
+    function goToLobby(){
+        if(loginPage.checked){
+            loginPage.checked = false;
+        }else if(lobbyListPage.checked){
+            lobbyListPage.checked = false;
+            document.querySelectorAll(".hill0,.hill1,.hill2,.hill3,.plain,.moon").forEach(element => {
+                console.log(element.className);
+                element.setAttribute("class",element.className + " selected");
+            });
+        }
+        document.getElementById("lobby").innerHTML = lobby;
+        lobbyPage.checked = true;
+    }
+
+    function goToLobbyList(){
+        if(loginPage.checked){
+            loginPage.checked = false;
+        }else if(lobbyPage.checked){
+            lobbyPage.checked = false;
+            document.querySelectorAll(".hill0,.hill1,.hill2,.hill3,.plain,.moon").forEach(element => {
+                console.log(element.className);
+                element.setAttribute("class",element.className + "");
+            });
+        }
+        lobbyListPage.checked = true;
+    }
 
     function checkUsername(str){
         if ((str===null) || (str==='')) 
@@ -94,10 +139,6 @@ document.addEventListener("DOMContentLoaded", function() {
             return null; 
         else
             str = str.toString();
-    
-        while (lobbyArray[str] !== undefined){
-            str = str + "(1)";
-        }
     
         return (/^[\d\w\(\)]+$/g.test(str)) ? str : null;
     }
