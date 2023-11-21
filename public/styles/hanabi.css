@@ -120,7 +120,8 @@ body > div {
     position:absolute;
     margin-left:0px;
     bottom: -700px;
-    background:linear-gradient(to bottom right, #002142, #27435F)
+    background:linear-gradient(to bottom right, #002142, #27435F);
+    animation: transitionLobby 200s ease-out; 
 }
 .hill2 {
   width:800px;
@@ -136,13 +137,15 @@ body > div {
   position:absolute;
   margin-left:1050px;
   bottom: -700px;
-  background:linear-gradient(to bottom right, #002142, #27435F)
+  background:linear-gradient(to bottom right, #002142, #27435F);
+  animation: transitionLobby 200s ease-out; 
 }        
 
 .hill1 {
   width:850px;
   display: block;
   height:1000px;
+  animation: transitionLobby 200s ease-out; 
   background:#002142;
   z-index:3;
   /*border:1px solid red;*/
@@ -162,6 +165,7 @@ body > div {
   display: block;
   background:#002142;
   z-index: 2;
+  animation: transitionLobby 200s ease-out; 
   /*border:1px solid red;*/
   border-radius:50px;
   transform:rotate(45deg);
@@ -178,6 +182,7 @@ body > div {
   height:1000px;
   display: block;
   background:#002142;
+  animation: transitionLobby 200s ease-out; 
   z-index: 1;
   /*border:1px solid red;*/
   border-radius:400px;
@@ -198,6 +203,7 @@ body > div {
   z-index: 4;
   /*border:1px solid red;*/
   border-radius:50%;
+  
   transform:rotate(45deg);
   box-shadow: 0px 1px 30px 0px rgba(255, 255, 255, 0.5);
   margin-top:50px;
@@ -207,30 +213,37 @@ body > div {
   background: #f0f0f0
 }
 
-.hill3.selected,
-.hill0.selected, 
-.hill1.selected, 
-.hill2.selected, 
-.plain.selected, 
-.moon.selected{
-  animation: 200s ease-out; 
-  bottom: -1500px;
+@keyframes slideout {
+  from {
+    transform: translateY(0px);
+  }
+  to {
+    transform: translateY(1000px);
+  }
 }
 
-.hill
+.selected{
+  animation-name: slideout;
+  animation-duration: 2s;
+  animation-timing-function: ease-out;
+  transform: translateY(1000px);
+
+}
+
+
 
 #moonEA:hover {
   background: transparent url(../images/rei_ayanami_plush.png) no-repeat center center;
   opacity: 0.5;
-  animation: 0.4s ease-out; 
+  animation: transitionLobby 1s ease-out;; 
 }
 
 @keyframes moving-stars {
   from {
-    background-position: 0 0;
+    background-position: 0px 0px;
   }
   to {
-    background-position: 10000px 0px;
+    background-position: 0px -1500px;
   }
 }
 
