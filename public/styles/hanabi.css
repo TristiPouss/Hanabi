@@ -361,6 +361,7 @@ main #gameBoard {
   margin-top: -100px;
 }
 .card{
+  
   display: flex;
     height: 140px;
     width: 100px;
