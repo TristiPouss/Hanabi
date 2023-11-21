@@ -107,14 +107,12 @@ body > div {
   z-index: 0;
 }
 .hill3 {
-  display: block;
     width:600px;
     height:1000px;
     background:#002142;
     z-index:2;
     /*border:1px solid red;*/
     border-radius:50px;
-    transform:rotate(45deg);
     box-shadow: 0px 1px 30px 0px rgba(0, 0, 0, 0.5);
     margin-top:100px;
     position:absolute;
@@ -125,13 +123,11 @@ body > div {
 }
 .hill2 {
   width:800px;
-  display: block;
   height:1000px;
   background:#002142;
   z-index:3;
   /*border:1px solid red;*/
   border-radius:50px;
-  transform:rotate(45deg);
   box-shadow: 0px 1px 30px 0px rgba(0, 0, 0, 0.5);
   margin-top:100px;
   position:absolute;
@@ -143,14 +139,12 @@ body > div {
 
 .hill1 {
   width:850px;
-  display: block;
   height:1000px;
   animation: transitionLobby 200s ease-out; 
   background:#002142;
   z-index:3;
   /*border:1px solid red;*/
   border-radius:50px;
-  transform:rotate(45deg);
   box-shadow: 0px 1px 30px 0px rgba(0, 0, 0, 0.5);
   margin-top:100px;
   position:absolute;
@@ -162,13 +156,11 @@ body > div {
 .hill0 {
   width:850px;
   height:1000px;
-  display: block;
   background:#002142;
   z-index: 2;
   animation: transitionLobby 200s ease-out; 
   /*border:1px solid red;*/
   border-radius:50px;
-  transform:rotate(45deg);
   box-shadow: 0px 1px 30px 0px rgba(0, 0, 0, 0.5);
   margin-top:100px;
   position:absolute;
@@ -180,8 +172,6 @@ body > div {
 .plain {
   width:1000px;
   height:1000px;
-  display: block;
-  background:#002142;
   animation: transitionLobby 200s ease-out; 
   z-index: 1;
   /*border:1px solid red;*/
@@ -197,42 +187,90 @@ body > div {
 
 .moon {
   width:200px;
-  display: block;
   height:200px;
-  background:#002142;
   z-index: 4;
+  display: block;
   /*border:1px solid red;*/
   border-radius:50%;
-  
-  transform:rotate(45deg);
+  rotate: 45deg;
   box-shadow: 0px 1px 30px 0px rgba(255, 255, 255, 0.5);
   margin-top:50px;
   position:absolute;
   margin-left:1450px;
   top: 0px;
-  background: #f0f0f0
+  background: #f0f0f0;
+  opacity: 1;
+}
+
+.hill0, .hill1, .hill2, .hill3, .plain {
+  animation: slidein 2s ease-out; 
+  transform: translateY(0%);
+  display: block;
+  rotate: 45deg;
 }
 
 @keyframes slideout {
   from {
-    transform: translateY(0px);
+    transform: translateY(0%);
   }
   to {
-    transform: translateY(1000px);
+    transform: translateY(100%);
   }
+}
+
+@keyframes slidein {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0%);
+  }
+}
+
+@keyframes opacityIn {
+  from {
+   opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes opacityOut {
+  from {
+   opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.moon{
+  animation: opacityIn 2s ease-out;
 }
 
 .selected{
   animation-name: slideout;
   animation-duration: 2s;
   animation-timing-function: ease-out;
-  transform: translateY(1000px);
+  transform: translateY(100%);
 
 }
 
+.moon.selected{
+  animation-name: opacityOut;
+  animation-duration: 2s;
+  animation-timing-function: ease-out;
+  opacity: 0;
+}
 
+#moonEA.selected{
+  display: none;
+}
 
 #moonEA:hover {
+  animation: none;
+  display: block;
   background: transparent url(../images/rei_ayanami_plush.png) no-repeat center center;
   opacity: 0.5;
   animation: transitionLobby 1s ease-out;; 
