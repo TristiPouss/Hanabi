@@ -25,8 +25,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Login
     btnConnecter.addEventListener("click", function(e){
-        e.stopImmediatePropagation();   // A try to solve the problem of the user lagging and clicking 
-                                        // multiple times on the login button, causing multiple 
+        e.stopImmediatePropagation();   // A try to solve the problem of the user lagging and clicking
+                                        // multiple times on the login button, causing multiple
                                         // connections on the same client
 
         let u = checkUsername(preventInjection(username.value.trim()));
@@ -70,7 +70,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     btnCreer.addEventListener("click", function() {
         let name = checkLobbyName(preventInjection(lobbyName.value.trim()));
-        if(name != null && name != ""){ 
+        if(name != null && name != ""){
             socket.emit("createLobby", name);
             lobby = name;
             goToLobby();
@@ -119,7 +119,7 @@ document.addEventListener("DOMContentLoaded", function() {
             lobbyPage.checked = false;
             document.querySelectorAll(".hill0,.hill1,.hill2,.hill3,.plain,.moon").forEach(element => {
                 console.log(element.className);
-                element.setAttribute("class",element.className.substring(0, element.className.length-10));
+                element.setAttribute("class",element.className.substring(0, element.className.length-9));
             });
         }
         lobbyListPage.checked = true;
