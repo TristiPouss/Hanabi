@@ -119,7 +119,7 @@ document.addEventListener("DOMContentLoaded", function() {
             lobbyPage.checked = false;
             document.querySelectorAll(".hill0,.hill1,.hill2,.hill3,.plain,.moon").forEach(element => {
                 console.log(element.className);
-                element.setAttribute("class",element.className + "");
+                element.setAttribute("class",element.className.substring(0, element.className.length-10));
             });
         }
         lobbyListPage.checked = true;
