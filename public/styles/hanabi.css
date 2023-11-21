@@ -1,48 +1,58 @@
+html {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
 body {
     padding: 0;
     margin: 0;
-    font-family: sans-serif;
-    background: linear-gradient(0deg, rgba(8,79,204,1) 0%, rgba(0,64,92,1) 100%);
+    font-family: sans-serif; 
     text-decoration: none;
+    overflow: hidden;
 }
 * {
     box-sizing: border-box;   
 }
 body > div {
     box-shadow: -10px 10px 20px #662549;
-    border: solid 1px darkblue;
+
 }
 
 @font-face {
-  font-family: 'Hanabi';
+  font-family: 'Hanami';
   src: url(./nuku1.ttf) format('truetype');
 }
 
-#content {
+#content, #container{
     position: absolute;
+    overflow: hidden;
     top: 0%;
     left: 0%;
     height: 100%;
     width: 100%;
     box-shadow: 0 10px 30px 5px rgba(0, 0, 0, 0.2);
-    background: linear-gradient(0deg, rgba(8,79,204,1) 0%, rgba(0,64,92,1) 100%);
+    background: rgb(74,93,130);
+    background: linear-gradient(0deg, rgba(74,93,130,1) 0%, rgba(31,70,124,1) 9%, rgba(10,14,40,1) 83%); 
     padding: 10px;
 }
 #content header {
     width: 100%;
     height: 10%;
     display: flex;
+    z-index: 100;
 }
 
-#content header h2 {
+#content header h2{
   color: white;
-  font-family: "Hanabi";
+  font-family: "Hanami";
   font-size: xx-large;
   text-shadow: #000 2px 2px 2px;
 }
 
 #content main {
   position: relative;
+  z-index: 100;
   height: 80%;
   width: 80%;
   box-shadow: 0 10px 30px 5px rgba(255,255, 255, 0.4);
@@ -63,6 +73,7 @@ body > div {
 
 /** Pied de zone de chat */        
 #content footer {
+    z-index: 100;
     position: absolute; 
     bottom: 0;
     padding: 0px;
@@ -81,6 +92,7 @@ body > div {
 }
         
 #content aside {
+    z-index: 100;
     width: 20%;
     float: right;
     margin: 0px;
@@ -91,22 +103,136 @@ body > div {
     box-shadow: 0 10px 30px 5px rgba(255,255, 255, 0.4);
     border-radius: 30px;
 }
-
+#content > .stars{
+  z-index: 0;
+}
 .hill3 {
     width:600px;
     height:1000px;
     background:#002142;
-    z-index:130;
+    z-index:2;
     /*border:1px solid red;*/
-    border-radius:30px;
+    border-radius:50px;
     transform:rotate(45deg);
     box-shadow: 0px 1px 30px 0px rgba(0, 0, 0, 0.5);
     margin-top:100px;
     position:absolute;
-    margin-left:50px;
-
+    margin-left:0px;
+    bottom: -700px;
     background:linear-gradient(to bottom right, #002142, #27435F)
+}
+.hill2 {
+  width:800px;
+  height:1000px;
+  background:#002142;
+  z-index:3;
+  /*border:1px solid red;*/
+  border-radius:50px;
+  transform:rotate(45deg);
+  box-shadow: 0px 1px 30px 0px rgba(0, 0, 0, 0.5);
+  margin-top:100px;
+  position:absolute;
+  margin-left:1050px;
+  bottom: -700px;
+  background:linear-gradient(to bottom right, #002142, #27435F)
 }        
+
+.hill1 {
+  width:850px;
+  height:1000px;
+  background:#002142;
+  z-index:3;
+  /*border:1px solid red;*/
+  border-radius:50px;
+  transform:rotate(45deg);
+  box-shadow: 0px 1px 30px 0px rgba(0, 0, 0, 0.5);
+  margin-top:100px;
+  position:absolute;
+  margin-left:-450px;
+  bottom: -600px;
+  background:linear-gradient(to bottom right, #002142, #27435F)
+}
+
+.hill0 {
+  width:850px;
+  height:1000px;
+  background:#002142;
+  z-index: 2;
+  /*border:1px solid red;*/
+  border-radius:50px;
+  transform:rotate(45deg);
+  box-shadow: 0px 1px 30px 0px rgba(0, 0, 0, 0.5);
+  margin-top:100px;
+  position:absolute;
+  margin-left:1250px;
+  bottom: -600px;
+  background:linear-gradient(to bottom right, #002142, #27435F)
+}
+
+.plain {
+  width:1000px;
+  height:1000px;
+  background:#002142;
+  z-index: 1;
+  /*border:1px solid red;*/
+  border-radius:400px;
+  
+  box-shadow: 0px 1px 30px 0px rgba(0, 0, 0, 0.5);
+  margin-top:100px;
+  position:absolute;
+  margin-left:450px;
+  bottom: -800px;
+  background: #1a5523
+}
+
+.moon {
+  width:200px;
+  height:200px;
+  background:#002142;
+  z-index: 4;
+  /*border:1px solid red;*/
+  border-radius:50%;
+  transform:rotate(45deg);
+  box-shadow: 0px 1px 30px 0px rgba(255, 255, 255, 0.5);
+  margin-top:50px;
+  position:absolute;
+  margin-left:1450px;
+  top: 0px;
+  background: #f0f0f0
+}
+
+#moonEA:hover {
+  background: transparent url(../images/rei_ayanami_plush.png) no-repeat center center;
+  opacity: 0.5;
+  animation: 0.4s ease-out; 
+}
+
+@keyframes moving-stars {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 10000px 0px;
+  }
+}
+
+#connexion {
+  z-index: 500;
+}
+
+.stars {
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  bottom:0;
+  width:100%;
+  height:100%;
+  display:block;
+  background:transparent url(http://www.script-tutorials.com/demos/360/images/stars.png) repeat top center;
+  z-index:0;
+  animation: moving-stars 400s linear infinite;
+}
 
 main #otherPlayer1 {
     display: flex;
@@ -280,7 +406,6 @@ input[type=radio]:checked + div {
     
         
 #logScreen {
-    background: rgba(200, 200, 200, 0.8);
     position: absolute; 
     top: 0;
     left: 0;
@@ -318,6 +443,7 @@ a {
   height: 5%;
   width:20%;
   display:flex;
+  z-index: 100;
   
 }
 input[type=button] {
@@ -327,7 +453,7 @@ input[type=button] {
 #btns > * {
   margin: auto;
   display: inline-block;
-  font-family: "Hanabi";
+  font-family: "Hanami";
   text-shadow: #000 2px 2px 2px;
   width: 80px;
   height: 80px;

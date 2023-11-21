@@ -9,20 +9,27 @@
 </head>
 
 <body>
-    <div class="background">
-        <div class="hill3"></div>
-    </div>
 
-    <input type="radio" name="btnScreen" id="radio1">
-    <div id="logScreen">
-        <div id="connexion">
-            <p>Choisissez votre pseudo : <br>
-            <input type="text" id="pseudo" placeholder="Tapez ici votre pseudo" size="30">
-            <input type="button" value="Se connecter" id="btnConnecter">
-            </p>
+    <input type="radio" name="btnScreen" id="radio1" checked>
+    <div id="container">
+        <div id="logScreen">
+            <div id="connexion">
+                <p>Choisissez votre pseudo : <br>
+                <input type="text" id="pseudo" placeholder="Tapez ici votre pseudo" size="30">
+                <input type="button" value="Se connecter" id="btnConnecter">
+                </p>
+            </div>
         </div>
+        <div class="hill3"></div>
+        <div class="hill2"></div>
+        <div class="hill1"></div>
+        <div class="hill0"></div>
+        <div class="plain"></div>
+        <div class="moon"></div>
+        <div class="moon" id="moonEA"></div>
+        <div class="stars"></div>
     </div>
-    <input type="radio" name="btnScreen" id="radio2" checked>
+    <input type="radio" name="btnScreen" id="radio2" >
     <div id="content">
         <header>
             <h2>Hanami - <span id="lobby">Nom du lobby</span></h2>
@@ -98,6 +105,7 @@
             <div id="bcAideResults"></div>
             <footer><input type="button" value="Fermer" id="btnFermer"></footer>
         </div>
+        <div class="stars"></div>
     </div>
 </body>
 
