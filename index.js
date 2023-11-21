@@ -16,7 +16,20 @@ app.get('/', function(req, res) {
     res.sendFile(__dirname + '/public/hanabi.html');
 });
 
+/*** Gestion des lobbys ***/
+let lobbys = [];
 
+class Lobby {
+    constructor(name) {
+        lobbys.push(this);
+        this.name = name;
+        this.players = [];
+    }
+
+    getPlayers() {
+        return this.players;
+    }
+};
 
 /*** Gestion des clients et des connexions ***/
 var clients = {};       // id -> socket
@@ -45,28 +58,6 @@ io.on('connection', function (socket) {
         socket.broadcast.emit("message", { from: null, to: null, text: currentID + " a rejoint la discussion", date: Date.now() } );
         // envoi de la nouvelle liste à tous les clients connectés
         io.sockets.emit("liste", Object.keys(clients));
-    });
-
-    /**
-     *  Réception d'un message et transmission à tous.
-     *  @param  msg     Object  le message à transférer à tous
-     */
-    socket.on("message", function(msg) {
-        console.log("Reçu message");
-        // si jamais la date n'existe pas, on la rajoute
-        msg.date = Date.now();
-        // si message privé, envoi seulement au destinataire
-        if (msg.to != null && clients[msg.to] !== undefined) {
-            console.log(" --> message privé");
-            clients[msg.to].emit("message", msg);
-            if (msg.from != msg.to) {
-                socket.emit("message", msg);
-            }
-        }
-        else {
-            console.log(" --> broadcast");
-            io.sockets.emit("message", msg);
-        }
     });
 
     /**
