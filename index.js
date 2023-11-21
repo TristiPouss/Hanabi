@@ -23,7 +23,7 @@ let lobbyArray = [];
 function seekLobby(name){
     lobbyArray.forEach(lobby => {
         if(lobby.name == name){
-            return lobby;
+            return lobbyArray[lobby];
         }
     });
     return null;
@@ -81,24 +81,26 @@ io.on('connection', function (socket) {
 
     socket.on("connectLobby", function(name){
         let lobby = seekLobby(name);
-        if(lobby == null){console.log("FF");}
-        lobby.littlePlayers.push(currentID);
-        // envoi de la nouvelle liste de lobby à tous les clients connectés
-        io.sockets.emit("listLobby", JSON.stringify(lobbyArray));
+        if(lobby != null){
+            lobby.littlePlayers.push(currentID);
+            // envoi de la nouvelle liste de lobby à tous les clients connectés
+            io.sockets.emit("listLobby", JSON.stringify(lobbyArray));
+        }else{console.log("FF");}
     });
 
     socket.on("disconnectLobby", function(name){
         let lobby = seekLobby(name);
-        if(lobby == null){console.log("FF");}
-        for(let i = 0; i<lobby.littlePlayers.length; ++i){
-            if(lobby.littlePlayers[i] == currentID){
-                delete lobby.littlePlayers[i];
-                break;
+        if(lobby != null){
+            for(let i = 0; i<lobby.littlePlayers.length; ++i){
+                if(lobby.littlePlayers[i] == currentID){
+                    delete lobby.littlePlayers[i];
+                    break;
+                }
             }
-        }
-        checkLobby();
-        // envoi de la nouvelle liste de lobby à tous les clients connectés
-        io.sockets.emit("listLobby", JSON.stringify(lobbyArray));
+            checkLobby();
+            // envoi de la nouvelle liste de lobby à tous les clients connectés
+            io.sockets.emit("listLobby", JSON.stringify(lobbyArray));
+        }else{console.log("FF");}
     });
 
     /**

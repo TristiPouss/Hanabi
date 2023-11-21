@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", function() {
             console.log(lobbyArray);
             lobbyList.innerHTML = ""; // reset
             lobbyArray.forEach(_lobby => {
-                let li = document.createTextNode("<li>"+_lobby.name+" - "+_lobby.littlePlayers.length+"/4</li>");
+                let li = document.createNode("<li>"+_lobby.name+" - "+_lobby.littlePlayers.length+"/4</li>");
                 li.addEventListener("click", function() {
                     lobby = _lobby.name;
                     socket.emit("connectLobby", lobby);
