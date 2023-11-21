@@ -107,6 +107,7 @@ body > div {
   z-index: 0;
 }
 .hill3 {
+  display: block;
     width:600px;
     height:1000px;
     background:#002142;
@@ -123,6 +124,7 @@ body > div {
 }
 .hill2 {
   width:800px;
+  display: block;
   height:1000px;
   background:#002142;
   z-index:3;
@@ -139,6 +141,7 @@ body > div {
 
 .hill1 {
   width:850px;
+  display: block;
   height:1000px;
   background:#002142;
   z-index:3;
@@ -156,6 +159,7 @@ body > div {
 .hill0 {
   width:850px;
   height:1000px;
+  display: block;
   background:#002142;
   z-index: 2;
   /*border:1px solid red;*/
@@ -172,6 +176,7 @@ body > div {
 .plain {
   width:1000px;
   height:1000px;
+  display: block;
   background:#002142;
   z-index: 1;
   /*border:1px solid red;*/
@@ -187,6 +192,7 @@ body > div {
 
 .moon {
   width:200px;
+  display: block;
   height:200px;
   background:#002142;
   z-index: 4;
@@ -201,15 +207,17 @@ body > div {
   background: #f0f0f0
 }
 
-.hill0[selected], 
-.hill1[selected], 
-.hill2[selected],
-.hill3[selected],
-.plain[selected],
-.moon[selected] {
-  animation: 0.4s ease-out; 
-  bottom: -150000px;
+.hill3.selected,
+.hill0.selected, 
+.hill1.selected, 
+.hill2.selected, 
+.plain.selected, 
+.moon.selected{
+  animation: 200s ease-out; 
+  bottom: -1500px;
 }
+
+.hill
 
 #moonEA:hover {
   background: transparent url(../images/rei_ayanami_plush.png) no-repeat center center;
@@ -449,13 +457,14 @@ input[type=radio]:checked + div {
   left: 0;
   width: 100vw;
   height: 100vh;
+  z-index: 100;
 }
 #lobbyScreen > div {
   text-align: center;
   width: 800px;
   height:600px;
   position: absolute;
-  top: 50%;
+  top: 40%;
   left: 50%;
   background-color: white;
   transform: translateX(-50%) translateY(-50%);
@@ -464,12 +473,63 @@ input[type=radio]:checked + div {
   border: solid 2px #000;
   border-radius: 10px;
   box-shadow: 10px 10px 10px #000;
+  padding : 10px;
 }
 
 #lobbyScreen input {
+  margin: 0;
   padding: 3px;
   font-size: 80%;
+}
+#lobbyScreen input[type=button] {
+  margin: 5px;
+  padding: 3px;
+  font-size: 80%;
+  position:relative;
+  bottom: -110px;
+}
+
+#lobbyScreen main, #lobbyScreen aside {
+  background-color: #f0f0f0;
+  box-shadow: inset 0 10px 30px 5px rgba(0, 0, 0, 0.2);
+  height: calc(100% - 20px);
+  position: absolute;
+  border-radius: 10px;
   margin: 10px;
+}
+
+#lobbyList li{
+  list-style-type: none;
+  padding: 5px;
+  margin: 5px;
+  border-radius: 5px;
+  position: relative;
+  left: -20px;
+  background-color: #f0f0f0;
+  box-shadow: inset 0 10px 30px 5px rgba(0, 0, 0, 0.2);
+}
+
+#lobbyList li:hover{
+  background-color: #d0d0d0;
+  cursor: pointer;
+}
+
+#lobbyScreen h2{
+  font-family: "Hanami";
+}
+#lobbyScreen main {
+  top: 0;
+  left: 0;
+  width: 250px;
+}
+
+#lobbyScreen aside {
+  top: 0;
+  right:0;
+  width: 500px;
+  
+  padding: 10px;
+  overflow-y: scroll;
 }
 
 
@@ -485,8 +545,7 @@ a {
   height: 5%;
   width:20%;
   display:flex;
-  z-index: 100;
-  
+  z-index: 100; 
 }
 input[type=button] {
   background-color: transparent;
