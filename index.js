@@ -17,17 +17,33 @@ app.get('/', function(req, res) {
 });
 
 /*** Gestion des lobbys ***/
-let lobbys = [];
 
+/**
+ * Classe Lobby
+ */
 class Lobby {
-    constructor(name) {
-        lobbys.push(this);
+    static id = 0; 
+    static listLobby = [];
+    constructor(name, idCreator) {
+        Lobby.id++;
+        Lobby.listLobby.push(this);
+
         this.name = name;
-        this.players = [];
+        this.creator = idCreator;
+        this.littlePlayers = [idCreator];
     }
 
-    getPlayers() {
-        return this.players;
+    addPlayer(id){
+        this.littlePlayers.push(id);
+    }
+    removePlayer(id){
+        delete this.littlePlayers[id];
+    }
+    changeName(name){
+        this.name = name;
+    }
+    launchGame(){
+        (this.littlePlayers.length < 2) ? socket.emit("notEnoughPlayers") : socket.emit("launchGame");
     }
 };
 
@@ -54,10 +70,17 @@ io.on('connection', function (socket) {
         console.log("Nouvel utilisateur : " + currentID);
         // envoi d'un message de bienvenue à ce client
         socket.emit("bienvenue", id);
-        // envoi aux autres clients
-        socket.broadcast.emit("message", { from: null, to: null, text: currentID + " a rejoint la discussion", date: Date.now() } );
         // envoi de la nouvelle liste à tous les clients connectés
-        io.sockets.emit("liste", Object.keys(clients));
+        io.sockets.emit("listClient", Object.keys(clients));
+    });
+
+    /**
+     * Creation de lobby
+     */
+    socket.on("createLobby", function(name){
+        let l = new Lobby(name, currentID);
+        // envoi de la nouvelle liste de lobby à tous les clients connectés
+        io.socket.emit("listLobby", listLobby);
     });
 
     /**
