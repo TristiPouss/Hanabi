@@ -21,12 +21,14 @@ app.get('/', function(req, res) {
 /**
  * Classe Lobby
  */
+listLobby = [];
+
 class Lobby {
     static id = 0; 
-    static listLobby = [];
     constructor(name, idCreator) {
+        console.log("Nouveau Lobby créé");
         Lobby.id++;
-        Lobby.listLobby.push(this);
+        listLobby.push(this);
 
         this.name = name;
         this.creator = idCreator;
@@ -80,7 +82,7 @@ io.on('connection', function (socket) {
     socket.on("createLobby", function(name){
         let l = new Lobby(name, currentID);
         // envoi de la nouvelle liste de lobby à tous les clients connectés
-        io.socket.emit("listLobby", listLobby);
+        io.sockets.emit("listLobby", listLobby);
     });
 
     /**
