@@ -24,7 +24,7 @@ body > div {
   src: url(./nuku1.ttf) format('truetype');
 }
 
-#content, #container{
+#content, .container{
     position: absolute;
     overflow: hidden;
     top: 0%;
@@ -431,6 +431,22 @@ input[type=radio]:checked + div {
     font-size: 80%;
     margin: 10px;
 }
+
+#lobbyScreen {
+  position: absolute; 
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+}
+
+#lobbyScreen input {
+  padding: 3px;
+  font-size: 80%;
+  margin: 10px;
+}
+
+
 
 a {
   text-decoration: none;
