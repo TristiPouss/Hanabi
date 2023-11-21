@@ -3,44 +3,27 @@
 document.addEventListener("DOMContentLoaded", function() {
 
     const socket = io.connect();
-    let id = null;
-
-    /**
-     *  Connexion de l'utilisateur au jeu -> Selection des lobbys.
-     */
-    function connect() {
-        console.log(sock);
-        // recupération du pseudo
-        var user = document.getElementById("pseudo").value.trim();
-        if (! user) return;
-        document.getElementById("radio2").check = true;
-        currentUser = user;
-        sock.emit("login", user);
-    }
-
-    /**
-     *  Quitter le chat et revenir à la page d'accueil.
-     */
-        function quitter() {
-            currentUser = null;
-            sock.emit("logout");
-            document.getElementById("radio1").checked = true;
-        };
-
 
     // Variables
     let id = null;
-    let usersList = [];
-    let lobbyList = [];
+    let lobby = null;
+    let userArray = [];
+    let lobbyArray = [];
 
     const username = document.getElementById("pseudo");
-    const btnConnect = document.getElementById("btnConnecter");
+    const lobbyName = document.getElementById("lobbyName");
+
+    const btnConnecter = document.getElementById("btnConnecter");
+    const btnCreer = document.getElementById("btnCreer");
 
     const loginPage = document.getElementById("radio1");
-    const mainPage = document.getElementById("radio2");
+    const lobbyListPage = document.getElementById("radio2");
+    const lobbyPage = document.getElementById("radio3");
+
+    const lobbyList = document.getElementById("lobbyList").querySelector("ul");
 
     // Login
-    btnConnect.addEventListener("click", function(e){
+    btnConnecter.addEventListener("click", function(e){
         e.stopImmediatePropagation();   // A try to solve the problem of the user lagging and clicking 
                                         // multiple times on the login button, causing multiple 
                                         // connections on the same client
@@ -52,9 +35,7 @@ document.addEventListener("DOMContentLoaded", function() {
             id = u;
             // sending to main page
             loginPage.checked = false;
-            mainPage.checked = true;
-
-            socket.emit("createLobby", "test");
+            lobbyListPage.checked = true;
         }else{
             alert("Le pseudo n'est pas valide.\nIl ne doit pas contenir de caractère spécial ou d'espace.");
             username.value = "";
@@ -70,36 +51,64 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Lobby list receive
     socket.on("listLobby", function(l){
-        if(id != null){
-            lobbyList = l;
-            console.log(lobbyList);
+        if(id != null && lobby == null){
+            lobbyArray = JSON.parse(l);
+            console.log(lobbyArray);
+            lobbyList.innerHTML = ""; // reset
+            lobbyArray.forEach(lobby => {
+                lobbyList.innerHTML += "<li>"+lobby.name+"</li>";
+            });
         }
     });
-    document.getElementById("btnCreer").addEventListener("click", function() {
-        // TODO
-        document.getElementById("radio2").checked = false;
-        document.getElementById("radio3").checked = true;
-        document.querySelectorAll(".hill0,.hill1,.hill2,.hill3,.plain,.moon").forEach(element => {
-            console.log(element.className);
-            element.setAttribute("class",element.className + " selected");
-        });
+
+    btnCreer.addEventListener("click", function() {
+        let name = checkLobbyName(preventInjection(lobbyName.value.trim()));
+        if(name != null && name != ""){ 
+            lobbyListPage.checked = false;
+            socket.emit("createLobby", name);
+            lobby = name;
+            lobbyPage.checked = true;
+            document.querySelectorAll(".hill0,.hill1,.hill2,.hill3,.plain,.moon").forEach(element => {
+                console.log(element.className);
+                element.setAttribute("class",element.className + " selected");
+            });
+        }else{
+            alert("Le nom du lobby n'est pas valide.\nIl ne doit pas contenir de caractère spécial ou d'espace.");
+            lobbyName.value = "";
+        }
     });
-});
 
-function checkUsername(str){
-    if ((str===null) || (str==='')) 
-		return null; 
-	else
-        str = str.toString();
+    /*** Misc ***/
 
-    return (/^[\d\w]+$/g.test(str)) ? str : null;
-}
+    function checkUsername(str){
+        if ((str===null) || (str==='')) 
+            return null; 
+        else
+            str = str.toString();
+    
+        return (/^[\d\w]+$/g.test(str)) ? str : null;
+    }
+    
+    function checkLobbyName(str){
+        if ((str===null) || (str==='')) 
+            return null; 
+        else
+            str = str.toString();
+    
+        while (lobbyArray[str] !== undefined){
+            str = str + "(1)";
+        }
+    
+        return (/^[\d\w\(\)]+$/g.test(str)) ? str : null;
+    }
+    
+    function preventInjection(str) { 
+        if ((str===null) || (str==='')) 
+            return null; 
+        else
+            str = str.toString(); 
+            
+        return str.replace(/\</g, "&lt;").replace(/\>/g, "&gt;"); 
+    }
 
-function preventInjection(str) { 
-	if ((str===null) || (str==='')) 
-		return null; 
-	else
-		str = str.toString(); 
-		
-	return str.replace(/\</g, "&lt;").replace(/\>/g, "&gt;"); 
-}
+}); // End

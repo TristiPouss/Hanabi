@@ -18,36 +18,7 @@ app.get('/', function(req, res) {
 
 /*** Gestion des lobbys ***/
 
-/**
- * Classe Lobby
- */
-listLobby = [];
-
-class Lobby {
-    static id = 0; 
-    constructor(name, idCreator) {
-        console.log("Nouveau Lobby créé");
-        Lobby.id++;
-        listLobby.push(this);
-
-        this.name = name;
-        this.creator = idCreator;
-        this.littlePlayers = [idCreator];
-    }
-
-    addPlayer(id){
-        this.littlePlayers.push(id);
-    }
-    removePlayer(id){
-        delete this.littlePlayers[id];
-    }
-    changeName(name){
-        this.name = name;
-    }
-    launchGame(){
-        (this.littlePlayers.length < 2) ? socket.emit("notEnoughPlayers") : socket.emit("launchGame");
-    }
-};
+lobbyList = [];
 
 /*** Gestion des clients et des connexions ***/
 var clients = {};       // id -> socket
@@ -80,9 +51,10 @@ io.on('connection', function (socket) {
      * Creation de lobby
      */
     socket.on("createLobby", function(name){
-        let l = new Lobby(name, currentID);
+        let l = {"name": name, "creator": currentID, "littlePlayers":[currentID]};
+        lobbyList.push(l);
         // envoi de la nouvelle liste de lobby à tous les clients connectés
-        io.sockets.emit("listLobby", listLobby);
+        io.sockets.emit("listLobby", JSON.stringify(lobbyList));
     });
 
     /**
