@@ -56,14 +56,25 @@ document.addEventListener("DOMContentLoaded", function() {
             lobbyArray = JSON.parse(l);
             console.log(lobbyArray);
             lobbyList.innerHTML = ""; // reset
+            let curr = null;
             lobbyArray.forEach(_lobby => {
-                let li = document.createNode("<li>"+_lobby.name+" - "+_lobby.littlePlayers.length+"/4</li>");
-                li.addEventListener("click", function() {
+                lobbyList.innerHTML += "<li>"+_lobby.name+" - "+_lobby.littlePlayers.length+"/4</li>";
+                console.log("current : " + curr);
+                if(curr === null){
+                    console.log("current is null : ");
+                    console.log(lobbyList.querySelector("li"));
+                    curr = lobbyList.querySelector("li");
+                }else{ 
+                    console.log("current isnt null: ");
+                    console.log(curr.nextElementSibling);
+                    curr = curr.nextElementSibling;
+                }
+                console.log("new current : " + curr);
+                /*curr.addEventListener("click", function() {
                     lobby = _lobby.name;
                     socket.emit("connectLobby", lobby);
                     goToLobby();
-                });
-                lobbyList.appendChild(li);
+                });*/
             });
         }
     });
@@ -80,11 +91,15 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    btnQuitter.addEventListener("click", function() {
+    function disconnectLobby() {
         socket.emit("disconnectLobby", lobby);
         lobby = null;
         goToLobbyList();
-    });
+    }
+
+    btnQuitter.addEventListener("click", disconnectLobby);
+
+    socket.on("closingLobby", disconnectLobby);
 
     /*** Misc ***/
 
@@ -104,7 +119,6 @@ document.addEventListener("DOMContentLoaded", function() {
         }else if(lobbyListPage.checked){
             lobbyListPage.checked = false;
             document.querySelectorAll(".hill0,.hill1,.hill2,.hill3,.plain,.moon").forEach(element => {
-                console.log(element.className);
                 element.setAttribute("class",element.className + " selected");
             });
         }
@@ -118,7 +132,6 @@ document.addEventListener("DOMContentLoaded", function() {
         }else if(lobbyPage.checked){
             lobbyPage.checked = false;
             document.querySelectorAll(".hill0,.hill1,.hill2,.hill3,.plain,.moon").forEach(element => {
-                console.log(element.className);
                 element.setAttribute("class",element.className.substring(0, element.className.length-9));
             });
         }
