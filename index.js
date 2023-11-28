@@ -2,7 +2,7 @@
 const express = require('express');
 const game = require('./public/js/card.js');
 const app = express();
-const port = 8080;
+const port = 3000;
 const server = app.listen(port, function() {
     console.log("C'est parti ! En attente de connexion sur le port "+port+"...");
 });
@@ -254,7 +254,7 @@ io.on('connection', function (socket) {
      */
     socket.on("launchGame", function(res){
         let lobby = seekLobby(res.lobbyName);
-        if(lobby != null && lobby.creator == res.idEmit){
+        if(lobby != null && lobby.creator == res.idEmit){ // L'id de l'émetteur est forcément currentID
             lobby.launchGame();
             lobby.getClients().forEach(client => {
                 let data = new GameData(lobby,client);
