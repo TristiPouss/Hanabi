@@ -561,6 +561,15 @@ input[type=radio]:checked + div {
   margin: 10px;
 }
 
+#lobbyList h2{
+  position:sticky;
+}
+
+#lobbyList ul {
+  overflow-y: scroll;
+  scroll-behavior: smooth;
+}
+
 #lobbyList li{
   list-style-type: none;
   padding: 5px;
@@ -570,6 +579,7 @@ input[type=radio]:checked + div {
   left: -20px;
   background-color: #f0f0f0;
   box-shadow: inset 0 10px 30px 5px rgba(0, 0, 0, 0.2);
+  overflow-x: hidden;
 }
 
 #lobbyList li:hover{

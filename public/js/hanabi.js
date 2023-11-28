@@ -65,11 +65,13 @@ document.addEventListener("DOMContentLoaded", function() {
                 let li = document.createElement("li");
                 li.innerHTML = _lobby.name+" - "+_lobby.littlePlayers.length+"/4";
                 lobbyList.appendChild(li);
-                li.addEventListener("click", function() {
-                    lobby = _lobby.name;
-                    socket.emit("connectLobby", lobby);
-                    goToLobby();
-                });
+                if(_lobby.littlePlayers.length < 4){
+                    li.addEventListener("click", function() {
+                        lobby = _lobby.name;
+                        socket.emit("connectLobby", lobby);
+                        goToLobby();
+                    });
+                }
             });
         }
     });
