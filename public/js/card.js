@@ -67,8 +67,9 @@ class Game{
         this.hands = {};
         this.stacks = [new Array(5), new Array(5), new Array(5), new Array(5), new Array(5)];
         this.discard = new Array();
-        this.hints_blue = 8;
-        this.hints_red = 0;
+        this.hints = 8;
+        this.fails= 0;
+        this.deal();
     }
 
     deal(){
@@ -81,8 +82,8 @@ class Game{
     }
 
     give_information(){
-        if(this.hints_blue > 0){
-            this.hints_blue--;
+        if(this.hints > 0){
+            this.hints--;
             return true;
         }
         return false;
@@ -92,10 +93,9 @@ class Game{
         this.discard.push(card);
         this.hands[player].splice(this.hands[player].indexOf(card), 1);
         this.hands[player].push(this.deck.cards.pop());
-        if (this.hints_blue < 8){
-            this.hints_blue++;
+        if (this.hints < 8){
+            this.hints++;
         }
     }
 }
-
 module.exports = {Card, Deck, Game};

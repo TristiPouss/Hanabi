@@ -2,7 +2,7 @@
 const express = require('express');
 const game = require('./public/js/card.js');
 const app = express();
-const port = 3000;
+const port = 8080;
 const server = app.listen(port, function() {
     console.log("C'est parti ! En attente de connexion sur le port "+port+"...");
 });
@@ -39,7 +39,7 @@ class Lobby {
     }
 
     launchGame(){
-        this.game = new Game(this.littlePlayers);
+        this.game = new game.Game(this.littlePlayers);
     }
 
     getClients(){
@@ -70,6 +70,20 @@ class Lobby {
     }
 }
 
+
+class GameData {
+    constructor(Lobby,Player){
+        this.playersCards = {};
+        this.nb_card = Lobby.game.hands[Player].length;
+        this.nb_hints = Lobby.game.nb_hints;
+        this.nb_fails = Lobby.game.nb_fails
+        Object.keys(Lobby.game.hands).forEach(clientName => {
+            if (clientName !== Player){
+                this.playersCards[clientName] = Lobby.game.hands[clientName];
+            }
+        });
+    }
+}
 /*** Misc ***/
 
 function seekLobby(name){
@@ -96,10 +110,10 @@ function checkLobby(){
 
 /*** Log msg ***/
 
-class Log{ 
+class Log{
     isLobby;
     text;
-    date; 
+    date;
     constructor(isLobby, text, date){
         this.isLobby = isLobby;
         this.text = text;
@@ -189,7 +203,7 @@ io.on('connection', function (socket) {
         // si client était identifié (devrait toujours être le cas)
         if (currentID) {
             console.log("Sortie de l'utilisateur " + currentID);
-            // déconnexion du lobby 
+            // déconnexion du lobby
             disconnectFromAllLobby(currentID);
             checkLobby();
             io.sockets.emit("listLobby", JSON.stringify(lobbyArray));
@@ -234,4 +248,32 @@ io.on('connection', function (socket) {
             };
         })
     }
+
+    /*
+     * Gestion du jeu
+     */
+    socket.on("launchGame", function(res){
+        let lobby = seekLobby(res.lobbyName);
+        if(lobby != null && lobby.creator == res.idEmit){
+            lobby.launchGame();
+            lobby.getClients().forEach(client => {
+                let data = new GameData(lobby,client);
+                clients[client].emit("launchGame", JSON.stringify(data));
+            });
+        }else{console.log("Erreur dans la recherche du lobby.");}
+    });
+
+    socket.on("hint", function(res){
+
+    });
+
+
+    socket.on("discard", function(res){
+
+    });
+
+
+    socket.on("play", function(res){
+
+    });
 });

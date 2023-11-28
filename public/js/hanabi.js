@@ -1,4 +1,3 @@
-
 "use strict"
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -17,6 +16,9 @@ document.addEventListener("DOMContentLoaded", function() {
     const btnConnecter = document.getElementById("btnConnecter");
     const btnCreer = document.getElementById("btnCreer");
     const btnQuitter = document.getElementById("btnQuitter");
+    let btnCommencer = document.getElementById("btnCommencer");
+    btnCommencer.setAttribute('disabled',true);
+    btnCommencer.setAttribute("style","display:none");
 
     const loginPage = document.getElementById("radio1");
     const lobbyListPage = document.getElementById("radio2");
@@ -82,14 +84,12 @@ document.addEventListener("DOMContentLoaded", function() {
             if(id != null){
                 let d = new Date(msg.date);
                 const time = d.toLocaleTimeString();
-        
                 let color = "";
                 if(msg.isLobby == true){
                     color = "class='lobby'";
                 }else{
                     color = "class='game'";
                 }
-        
                 // Add message to the chat log
                 lobbyLog.innerHTML += "<p "+color+">" +   // Start + Color
                                 time + " - " +        // Timestamp
@@ -110,6 +110,8 @@ document.addEventListener("DOMContentLoaded", function() {
             socket.emit("createLobby", name);
             lobby = name;
             goToLobby();
+            btnCommencer.removeAttribute('disabled');
+            btnCommencer.setAttribute("style","display:block");
         }else{
             alert("Le nom du lobby n'est pas valide.\nIl ne doit pas contenir de caractère spécial ou d'espace.");
         }
@@ -126,6 +128,15 @@ document.addEventListener("DOMContentLoaded", function() {
     btnQuitter.addEventListener("click", disconnectLobby);
     socket.on("closingLobby", disconnectLobby);
 
+
+    btnCommencer.addEventListener("click",function(cc){
+        socket.emit("launchGame",{idEmit:id,lobbyName:lobby});
+    });
+
+    socket.on("launchGame",function(e){
+        console.log(JSON.parse(e));
+        
+    })
     /*** Misc ***/
 
     function reset(){
@@ -218,9 +229,6 @@ document.addEventListener("DOMContentLoaded", function() {
         return str.replace(/\</g,"&lt;").replace(/\>/g, "&gt;"); 
     }
 
+
     /* */
-    let game = new Game([1,2,3,4]);
-    console.log(game);
-    game.deal();
-    console.log(game);
 }); // End

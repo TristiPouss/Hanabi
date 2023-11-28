@@ -639,6 +639,7 @@ input[type=button] {
   transition: 0.4s ease-out;
 }
 
+
 #btnCommencer:hover {
   color: rgb(6, 179, 6);
 }
