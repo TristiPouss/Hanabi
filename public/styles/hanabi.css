@@ -92,7 +92,7 @@ body > div {
 }
         
 #content aside {
-    z-index: 100;
+    z-index: 101;
     width: 20%;
     float: right;
     margin: 0px;
@@ -102,7 +102,18 @@ body > div {
     font-size: 14px;
     box-shadow: 0 10px 30px 5px rgba(255,255, 255, 0.4);
     border-radius: 30px;
+    overflow-y: scroll;
+    scroll-behavior: smooth;
 }
+
+#content aside p{
+  color: white;
+  font-family: "Hanami";
+  font-size: large;
+  text-shadow: hsl(0, 0%, 0%) 2px 2px 2px;
+  margin-left: 20px;
+}
+
 #content > .stars{
   z-index: 0;
 }

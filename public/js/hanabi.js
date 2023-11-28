@@ -23,11 +23,12 @@ document.addEventListener("DOMContentLoaded", function() {
     const lobbyPage = document.getElementById("radio3");
 
     const lobbyList = document.getElementById("lobbyList").querySelector("ul");
+    const lobbyLog = document.getElementById("content").querySelector("aside");
 
     const card_width = 100;
     const card_height = 140;
-    const lobbyLog = document.getElementById("content").querySelector("aside");
 
+    resetHTML();
     goToLogin();
 
     // Reset
@@ -74,9 +75,8 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     socket.on("log", function (log) {
-        if(id != null && lobby == null){
+        if(id != null && lobby != null){
             let msg = JSON.parse(log);
-            console.log(msg);
             if(id != null){
                 let d = new Date(msg.date);
                 const time = d.toLocaleTimeString();
@@ -137,6 +137,7 @@ document.addEventListener("DOMContentLoaded", function() {
     function resetHTML(){
         username.value = "";
         lobbyName.value = "";
+        lobbyLog.innerHTML = "";
         btnConnecter.removeAttribute("disabled");
     }
 
@@ -159,6 +160,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 element.setAttribute("class",element.className + " selected");
             });
         }
+        resetHTML();
         document.getElementById("lobby").innerHTML = lobby;
         lobbyPage.checked = true;
     }
@@ -172,6 +174,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 element.classList.remove('selected');
             });
         }
+        resetHTML();
+        lobbyName.focus();
         lobbyListPage.checked = true;
     }
 
@@ -185,6 +189,7 @@ document.addEventListener("DOMContentLoaded", function() {
             });
         }
         resetHTML();
+        username.focus();
         loginPage.checked = true;
     }
 

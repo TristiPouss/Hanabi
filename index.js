@@ -21,6 +21,7 @@ app.get('/', function(req, res) {
 /*** Gestion des lobbys ***/
 
 let lobbyArray = [];
+
 class Lobby {
     name;
     creator;
@@ -37,14 +38,6 @@ class Lobby {
         return this.littlePlayers.push(n);
     }
 
-    rmPlayer(n){
-        const index = this.littlePlayers.indexOf(n);
-            if (index > -1) { // only splice array when item is found
-                this.littlePlayers.splice(index, 1); // 2nd parameter means remove one item only
-                return true;
-            }
-        return false;
-    }
     launchGame(){
         this.game = new Game(this.littlePlayers);
     }
@@ -59,6 +52,21 @@ class Lobby {
             })
         });
         return res;
+    }
+
+    rmPlayer(n){
+        if(n == this.creator){
+            this.getClients().forEach(client => {
+                clients[client].emit("closingLobby");
+                clients[client].emit("resetHTMLL");
+            });
+        }
+        const index = this.littlePlayers.indexOf(n);
+            if (index > -1) { // only splice array when item is found
+                this.littlePlayers.splice(index, 1); // 2nd parameter means remove one item only
+                return true;
+            }
+        return false;
     }
 }
 
@@ -136,7 +144,7 @@ io.on('connection', function (socket) {
         }
         let l = new Lobby(name, currentID);
         console.log("Nouveau lobby : " + name);
-        sendLogToLobby(l, true, "Le lobby a bien été créé.");
+        sendLogToLobby(seekLobby(name), true, "Le lobby a bien été créé.");
         // envoi de la nouvelle liste de lobby à tous les clients connectés
         io.sockets.emit("listLobby", JSON.stringify(lobbyArray));
     });
@@ -145,7 +153,7 @@ io.on('connection', function (socket) {
         let lobby = seekLobby(name);
         if(lobby != null){
             lobby.addPlayer(currentID);
-            sendLogToLobby(lobby, true, currentID + " a rejoins le lobby.");
+            sendLogToLobby(lobby, true, currentID + " a rejoint le lobby.");
             // envoi de la nouvelle liste de lobby à tous les clients connectés
             io.sockets.emit("listLobby", JSON.stringify(lobbyArray));
         }else{console.log("Erreur dans la recherche du lobby.");}
@@ -213,7 +221,8 @@ io.on('connection', function (socket) {
     function sendLogToLobby(lobby, isLobby, txt){
         lobby.getClients().forEach(client => {
             if(client != currentID){
-                clients[client].emit("log", JSON.stringify(new Log(isLobby, txt)));
+                clients[client].emit("log", JSON.stringify(new Log(isLobby, txt, Date.now())));
+                console.log("Envoi d'un message au lobby " + lobby.name);
             }
         });
     }
