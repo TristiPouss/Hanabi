@@ -1,5 +1,6 @@
 // Chargement des modules
 const express = require('express');
+const game = require('./public/js/card.js');
 const app = express();
 const port = 3000;
 const server = app.listen(port, function() {
@@ -20,11 +21,11 @@ app.get('/', function(req, res) {
 /*** Gestion des lobbys ***/
 
 let lobbyArray = [];
-
 class Lobby {
     name;
     creator;
     littlePlayers;
+    game;
     constructor(n, id){
         this.name = n;
         this.creator = id;
@@ -43,6 +44,9 @@ class Lobby {
                 return true;
             }
         return false;
+    }
+    launchGame(){
+        this.game = new Game(this.littlePlayers);
     }
 
     getClients(){
