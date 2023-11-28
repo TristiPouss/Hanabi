@@ -22,31 +22,30 @@ document.addEventListener("DOMContentLoaded", function() {
     const lobbyPage = document.getElementById("radio3");
 
     const lobbyList = document.getElementById("lobbyList").querySelector("ul");
+    const lobbyLog = document.getElementById("content").querySelector("aside");
+
+    goToLogin();
+
+    // Reset
+    socket.on("reset", function (){
+        reset();
+        goToLogin();
+    });
 
     // Login
     btnConnecter.addEventListener("click", function(e){
-        e.stopImmediatePropagation();   // A try to solve the problem of the user lagging and clicking
-                                        // multiple times on the login button, causing multiple
-                                        // connections on the same client
-
         let u = checkUsername(preventInjection(username.value.trim()));
         if(u != null && u != ""){
             // Connexion
             socket.emit("login", u);
             id = u;
             // sending to main page
+            btnConnecter.setAttribute("disabled", true);
             loginPage.checked = false;
             lobbyListPage.checked = true;
         }else{
             alert("Le pseudo n'est pas valide.\nIl ne doit pas contenir de caractère spécial ou d'espace.");
             username.value = "";
-        }
-    });
-
-    // Welcome
-    socket.on("bienvenue", function(id) {
-        if(id != null){
-
         }
     });
 
@@ -58,25 +57,45 @@ document.addEventListener("DOMContentLoaded", function() {
             lobbyList.innerHTML = ""; // reset
             let curr = null;
             lobbyArray.forEach(_lobby => {
-                lobbyList.innerHTML += "<li>"+_lobby.name+" - "+_lobby.littlePlayers.length+"/4</li>";
-                console.log("current : " + curr);
-                if(curr === null){
-                    console.log("current is null : ");
-                    console.log(lobbyList.querySelector("li"));
-                    curr = lobbyList.querySelector("li");
-                }else{ 
-                    console.log("current isnt null: ");
-                    console.log(curr.nextElementSibling);
-                    curr = curr.nextElementSibling;
-                }
-                console.log("new current : " + curr);
-                /*curr.addEventListener("click", function() {
+                let li = document.createElement("li");
+                li.innerHTML = _lobby.name+" - "+_lobby.littlePlayers.length+"/4";
+                lobbyList.appendChild(li);
+                li.addEventListener("click", function() {
                     lobby = _lobby.name;
                     socket.emit("connectLobby", lobby);
                     goToLobby();
-                });*/
+                });
             });
         }
+    });
+
+    socket.on("log", function (log) {
+        if(id != null && lobby == null){
+            let msg = JSON.parse(log);
+            console.log(msg);
+            if(id != null){
+                let d = new Date(msg.date);
+                const time = d.toLocaleTimeString();
+        
+                let color = "";
+                if(msg.isLobby == true){
+                    color = "class='lobby'";
+                }else{
+                    color = "class='game'";
+                }
+        
+                // Add message to the chat log
+                lobbyLog.innerHTML += "<p "+color+">" +   // Start + Color
+                                time + " - " +        // Timestamp
+                                (msg.isLobby ? "[lobby]" : "[game]") +         // Lobby or game info
+                                " : " + msg.text +    // Main text
+                                "</p>";               // End
+        
+                // Scroll down automatically
+                let history = lobbyLog.getElementsByTagName("p");
+                history[history.length-1].scrollIntoView(false);
+            }
+        }else console.log("Cdt pour recevoir le message non remplies");
     });
 
     btnCreer.addEventListener("click", function() {
@@ -87,21 +106,35 @@ document.addEventListener("DOMContentLoaded", function() {
             goToLobby();
         }else{
             alert("Le nom du lobby n'est pas valide.\nIl ne doit pas contenir de caractère spécial ou d'espace.");
-            lobbyName.value = "";
         }
+        lobbyName.value = "";
     });
 
     function disconnectLobby() {
         socket.emit("disconnectLobby", lobby);
         lobby = null;
+        lobbyName.value = "";
         goToLobbyList();
     }
 
     btnQuitter.addEventListener("click", disconnectLobby);
-
     socket.on("closingLobby", disconnectLobby);
 
     /*** Misc ***/
+
+    function reset(){
+        id = null;
+        lobby = null;
+        userArray = [];
+        lobbyArray = [];
+        resetHTML();
+    }
+
+    function resetHTML(){
+        username.value = "";
+        lobbyName.value = "";
+        btnConnecter.removeAttribute("disabled");
+    }
 
     document.addEventListener("keypress", function(e){
         if(e.key == "Enter"){
@@ -132,10 +165,23 @@ document.addEventListener("DOMContentLoaded", function() {
         }else if(lobbyPage.checked){
             lobbyPage.checked = false;
             document.querySelectorAll(".hill0,.hill1,.hill2,.hill3,.plain,.moon").forEach(element => {
-                element.setAttribute("class",element.className.substring(0, element.className.length-9));
+                element.classList.remove('selected');
             });
         }
         lobbyListPage.checked = true;
+    }
+
+    function goToLogin(){
+        if(lobbyList.checked){
+            lobbyList.checked = false;
+        }else if(lobbyPage.checked){
+            lobbyPage.checked = false;
+            document.querySelectorAll(".hill0,.hill1,.hill2,.hill3,.plain,.moon").forEach(element => {
+                element.classList.remove('selected');
+            });
+        }
+        resetHTML();
+        loginPage.checked = true;
     }
 
     function checkUsername(str){

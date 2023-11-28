@@ -1,8 +1,9 @@
 // Chargement des modules
 const express = require('express');
 const app = express();
-const server = app.listen(8080, function() {
-    console.log("C'est parti ! En attente de connexion sur le port 8080...");
+const port = 3000;
+const server = app.listen(port, function() {
+    console.log("C'est parti ! En attente de connexion sur le port "+port+"...");
 });
 
 // Ecoute sur les websockets
@@ -36,15 +37,28 @@ class Lobby {
     }
 
     rmPlayer(n){
-        for(let i = 0; i < this.littlePlayers.length; ++i){
-            if(this.littlePlayers[i] == n){
-                delete this.littlePlayers[i];
+        const index = this.littlePlayers.indexOf(n);
+            if (index > -1) { // only splice array when item is found
+                this.littlePlayers.splice(index, 1); // 2nd parameter means remove one item only
                 return true;
             }
-        }
         return false;
     }
+
+    getClients(){
+        let res = [];
+        this.littlePlayers.forEach(player => {
+            Object.keys(clients).forEach(client => {
+                if(player == client){
+                    res.push(client);
+                }
+            })
+        });
+        return res;
+    }
 }
+
+/*** Misc ***/
 
 function seekLobby(name){
     let res = null;
@@ -68,11 +82,25 @@ function checkLobby(){
     });
 }
 
+/*** Log msg ***/
+
+class Log{ 
+    isLobby;
+    text;
+    date; 
+    constructor(isLobby, text, date){
+        this.isLobby = isLobby;
+        this.text = text;
+        this.date = date;
+    }
+}
+
 /*** Gestion des clients et des connexions ***/
 var clients = {};       // id -> socket
 
 // Quand un client se connecte, on le note dans la console
 io.on('connection', function (socket) {
+    socket.emit("reset");
 
     // message de debug
     console.log("Un client s'est connecté");
@@ -89,8 +117,6 @@ io.on('connection', function (socket) {
         currentID = id;
         clients[currentID] = socket;
         console.log("Nouvel utilisateur : " + currentID);
-        // envoi d'un message de bienvenue à ce client
-        socket.emit("bienvenue", id);
         // envoi de la nouvelle liste à tous les clients connectés
         io.sockets.emit("listClient", Object.keys(clients));
         // envoi de la liste de lobby à ce client
@@ -106,6 +132,7 @@ io.on('connection', function (socket) {
         }
         let l = new Lobby(name, currentID);
         console.log("Nouveau lobby : " + name);
+        sendLogToLobby(l, true, "Le lobby a bien été créé.");
         // envoi de la nouvelle liste de lobby à tous les clients connectés
         io.sockets.emit("listLobby", JSON.stringify(lobbyArray));
     });
@@ -114,6 +141,7 @@ io.on('connection', function (socket) {
         let lobby = seekLobby(name);
         if(lobby != null){
             lobby.addPlayer(currentID);
+            sendLogToLobby(lobby, true, currentID + " a rejoins le lobby.");
             // envoi de la nouvelle liste de lobby à tous les clients connectés
             io.sockets.emit("listLobby", JSON.stringify(lobbyArray));
         }else{console.log("Erreur dans la recherche du lobby.");}
@@ -128,19 +156,16 @@ io.on('connection', function (socket) {
         let lobby = seekLobby(name);
         if(lobby != null){
             if(lobby.creator == currentID){ // Si l'utilisateur était l'hôte, on ferme le lobby
-                lobby.littlePlayers.forEach(player => {
-                    Object.keys(clients).forEach(client => {
-                        if(client != currentID && player == client){
-                            clients[client].emit("closingLobby"); // Force les utilisateurs présents dans le lobby a le quitter 
-                        }
-                    })
+                lobby.getClients().forEach(client => {
+                    if (client != currentID){
+                        clients[client].emit("closingLobby");
+                        clients[client].emit("resetHTMLL");
+                        sendLogToLobby(lobby, true, client + " a quitté le lobby.");
+                    }
                 });
             }
             //
-            const index = lobby.littlePlayers.indexOf(currentID);
-            if (index > -1) { // only splice array when item is found
-            lobby.littlePlayers.splice(index, 1); // 2nd parameter means remove one item only
-            }
+            disconnectFromAllLobby(currentID);
             checkLobby(); // supprime le lobby si il est vide
             // envoi de la nouvelle liste de lobby à tous les clients connectés
             io.sockets.emit("listLobby", JSON.stringify(lobbyArray));
@@ -152,10 +177,12 @@ io.on('connection', function (socket) {
         // si client était identifié (devrait toujours être le cas)
         if (currentID) {
             console.log("Sortie de l'utilisateur " + currentID);
+            // déconnexion du lobby 
+            disconnectFromAllLobby(currentID);
+            checkLobby();
+            io.sockets.emit("listLobby", JSON.stringify(lobbyArray));
             // suppression de l'entrée
             delete clients[currentID];
-            // déconnexion du lobby 
-            disconnectFromLobby(currentID);
             // envoi de la nouvelle liste pour mise à jour
             socket.broadcast.emit("liste", Object.keys(clients));
         }
@@ -165,8 +192,12 @@ io.on('connection', function (socket) {
     socket.on("disconnect", function(reason) {
         // si client était identifié
         if (currentID) {
+            // déconnexion du lobby
+            disconnectFromAllLobby(currentID);
+            checkLobby();
+            io.sockets.emit("listLobby", JSON.stringify(lobbyArray));
+            // suppression de l'entrée
             delete clients[currentID];
-            disconnectFromLobby(currentID);
             // envoi de la nouvelle liste pour mise à jour
             socket.broadcast.emit("liste", Object.keys(clients));
         }
@@ -175,10 +206,19 @@ io.on('connection', function (socket) {
 
     /*** Misc ***/
 
-    function disconnectFromLobby(id){
-        lobbyArray.forEach(lobby => {
-            lobby.rmPlayer(id);
-        })
+    function sendLogToLobby(lobby, isLobby, txt){
+        lobby.getClients().forEach(client => {
+            if(client != currentID){
+                clients[client].emit("log", JSON.stringify(new Log(isLobby, txt)));
+            }
+        });
     }
 
+    function disconnectFromAllLobby(id){
+        lobbyArray.forEach(lobby => {
+            if(lobby.rmPlayer(id)){
+                sendLogToLobby(lobby, true, currentID + " a quitté le lobby.");
+            };
+        })
+    }
 });
