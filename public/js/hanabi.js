@@ -1,3 +1,4 @@
+
 "use strict"
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -22,6 +23,9 @@ document.addEventListener("DOMContentLoaded", function() {
     const lobbyPage = document.getElementById("radio3");
 
     const lobbyList = document.getElementById("lobbyList").querySelector("ul");
+
+    const card_width = 100;
+    const card_height = 140;
 
     // Login
     btnConnecter.addEventListener("click", function(e){
@@ -64,7 +68,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     console.log("current is null : ");
                     console.log(lobbyList.querySelector("li"));
                     curr = lobbyList.querySelector("li");
-                }else{ 
+                }else{
                     console.log("current isnt null: ");
                     console.log(curr.nextElementSibling);
                     curr = curr.nextElementSibling;
@@ -139,30 +143,31 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function checkUsername(str){
-        if ((str===null) || (str==='')) 
-            return null; 
+        if ((str===null) || (str===''))
+            return null;
         else
             str = str.toString();
-    
         return (/^[\d\w]+$/g.test(str)) ? str : null;
     }
-    
     function checkLobbyName(str){
-        if ((str===null) || (str==='')) 
-            return null; 
+        if ((str===null) || (str===''))
+            return null;
         else
             str = str.toString();
-    
         return (/^[\d\w\(\)]+$/g.test(str)) ? str : null;
     }
-    
-    function preventInjection(str) { 
-        if ((str===null) || (str==='')) 
-            return null; 
+    function preventInjection(str) {
+        if ((str===null) || (str===''))
+            return null;
         else
-            str = str.toString(); 
-            
-        return str.replace(/\</g, "&lt;").replace(/\>/g, "&gt;"); 
+            str = str.toString();
+
+        return str.replace(/\</g,"&lt;").replace(/\>/g, "&gt;"); 
     }
 
+    /* */
+    let game = new Game([1,2,3,4]);
+    console.log(game);
+    game.deal();
+    console.log(game);
 }); // End

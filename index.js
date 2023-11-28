@@ -1,5 +1,6 @@
 // Chargement des modules
 const express = require('express');
+const game = require('./public/js/card.js');
 const app = express();
 const server = app.listen(8080, function() {
     console.log("C'est parti ! En attente de connexion sur le port 8080...");
@@ -19,11 +20,11 @@ app.get('/', function(req, res) {
 /*** Gestion des lobbys ***/
 
 let lobbyArray = [];
-
 class Lobby {
     name;
     creator;
     littlePlayers;
+    game;
     constructor(n, id){
         this.name = n;
         this.creator = id;
@@ -43,6 +44,9 @@ class Lobby {
             }
         }
         return false;
+    }
+    launchGame(){
+        this.game = new Game(this.littlePlayers);
     }
 }
 
