@@ -1,5 +1,6 @@
 "use strict"
 
+
 document.addEventListener("DOMContentLoaded", function() {
 
     const socket = io.connect();
@@ -26,6 +27,11 @@ document.addEventListener("DOMContentLoaded", function() {
 
     const lobbyList = document.getElementById("lobbyList").querySelector("ul");
     const lobbyLog = document.getElementById("content").querySelector("aside");
+
+    const canvasHand = document.getElementById("myCards");
+    const canvasPlayer1 = document.getElementById("otherPlayer1");
+    const canvasPlayer2 = document.getElementById("otherPlayer2");
+    const canvasPlayer3 = document.getElementById("otherPlayer3");
 
     const card_width = 100;
     const card_height = 140;
@@ -134,7 +140,8 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     socket.on("launchGame",function(e){
-        console.log(JSON.parse(e));
+        let res = JSON.parse(e);
+        displayPlayersHands(res.playersCards);
         
     })
     /*** Misc ***/
@@ -230,5 +237,77 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
 
-    /* */
+    /* Card display */
+    function displayCard(card) {
+        let cardDiv = document.createElement("canvas");
+        cardDiv.setAttribute("class", "card");
+        cardDiv.setAttribute("width", card_width);
+        cardDiv.setAttribute("height", card_height);
+        let ctx = cardDiv.getContext("2d");
+        ctx.fillStyle = card.color;
+        ctx.fillRect(0, 0, card_width, card_height);
+        ctx.fillStyle = "black";
+        ctx.font = "30px Arial";
+        ctx.fillText(card.value, 10, 50);
+        cardDiv.setAttribute("value", card.value+" "+card.color);
+
+        cardDiv.addEventListener("click", function(e) {
+            console.log("(click on " + e.target.getAttribute("value") + " card)");
+        }
+        );
+
+        return cardDiv;
+    }
+    function displayStacks(stacks) {
+        let stacksDiv = document.querySelectorAll(".cardstack");
+        stacks.forEach(function(stack,index){
+            stack.forEach(card => {
+                stackDiv[index].appendChild(displayCard(card));
+            });
+        });
+        
+    }
+
+    function displayHand(hand) {
+        hand.forEach(card => {
+            canvasHand.appendChild(displayCard(card));
+        });
+    }
+
+    function displayPlayersHands(hands) {
+        let littlePlayers = Object.keys(hands);
+        console.log(littlePlayers);
+        let nbPlayer = littlePlayers.length;
+        switch (nbPlayer) {
+            case 3:
+                hands[littlePlayers[0]].forEach(card => {
+                    canvasPlayer1.appendChild(displayCard(card));
+                });
+                hands[littlePlayers[1]].forEach(card => {
+                    canvasPlayer2.appendChild(displayCard(card));
+                });
+                hands[littlePlayers[2]].forEach(card => {
+                    canvasPlayer3.appendChild(displayCard(card));
+                });
+                break;
+            case 2:
+                hands[littlePlayers[0]].forEach(card => {
+                    canvasPlayer2.appendChild(displayCard(card));
+                });
+                hands[littlePlayers[1]].forEach(card => {
+                    canvasPlayer3.appendChild(displayCard(card));
+                });
+                break;
+            case 1:
+                hands[littlePlayers[0]].forEach(card => {
+                    canvasPlayer1.appendChild(displayCard(card));
+                });
+                break;
+            default:
+                console.log("Error : hand length is not in [1,4]");
+                break;
+        }
+    }
+
+
 }); // End

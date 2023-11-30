@@ -2,7 +2,7 @@
 const express = require('express');
 const game = require('./public/js/card.js');
 const app = express();
-const port = 3000;
+const port = 8080;
 const server = app.listen(port, function() {
     console.log("C'est parti ! En attente de connexion sur le port "+port+"...");
 });
@@ -26,7 +26,7 @@ class Lobby {
     name;
     creator;
     littlePlayers;
-    game;
+    currGame;
     constructor(n, id){
         this.name = n;
         this.creator = id;
@@ -39,7 +39,7 @@ class Lobby {
     }
 
     launchGame(){
-        this.game = new game.Game(this.littlePlayers);
+        this.currGame = new game.Game(this.littlePlayers);
     }
 
     getClients(){
@@ -74,12 +74,12 @@ class Lobby {
 class GameData {
     constructor(Lobby,Player){
         this.playersCards = {};
-        this.nb_card = Lobby.game.hands[Player].length;
-        this.nb_hints = Lobby.game.nb_hints;
-        this.nb_fails = Lobby.game.nb_fails
-        Object.keys(Lobby.game.hands).forEach(clientName => {
-            if (clientName !== Player){
-                this.playersCards[clientName] = Lobby.game.hands[clientName];
+        this.nb_card = Lobby.currGame.hands[Player].length;
+        this.nb_hints = Lobby.currGame.hints;
+        this.nb_fails = Lobby.currGame.fails
+        Object.keys(Lobby.currGame.hands).forEach(clientName => {
+            if (clientName != Player){
+                this.playersCards[clientName] = Lobby.currGame.hands[clientName];
             }
         });
     }
@@ -264,16 +264,25 @@ io.on('connection', function (socket) {
     });
 
     socket.on("hint", function(res){
-
+        let lobby = seekLobby(res.lobbyName);
+        if(lobby != null && lobby.creator == res.idEmit){ // L'id de l'émetteur est forcément currentID
+            game.give_information(res.idPlayer, res.value);
+        }else{console.log("Erreur dans la recherche du lobby.");}
     });
 
 
     socket.on("discard", function(res){
-
+        let lobby = seekLobby(res.lobbyName);
+        if(lobby != null && lobby.creator == res.idEmit){ // L'id de l'émetteur est forcément currentID
+            game.discard_card(res.idPlayer, res.card);
+        }else{console.log("Erreur dans la recherche du lobby.");}
     });
 
 
     socket.on("play", function(res){
-
+        let lobby = seekLobby(res.lobbyName);
+        if(lobby != null && lobby.creator == res.idEmit){ // L'id de l'émetteur est forcément currentID
+            game.play_card(res.idPlayer, res.indexCard, res.indexStack)
+        }else{console.log("Erreur dans la recherche du lobby.");}
     });
 });
