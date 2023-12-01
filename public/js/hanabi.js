@@ -36,6 +36,8 @@ document.addEventListener("DOMContentLoaded", function() {
     const card_width = 100;
     const card_height = 140;
 
+    let valueSelected = null;
+
     resetHTML();
     goToLogin();
 
@@ -137,11 +139,13 @@ document.addEventListener("DOMContentLoaded", function() {
 
     btnCommencer.addEventListener("click",function(cc){
         socket.emit("launchGame",{idEmit:id,lobbyName:lobby});
+        console.log(lobby);
     });
 
     socket.on("launchGame",function(e){
         let res = JSON.parse(e);
         displayPlayersHands(res.playersCards);
+        displayHand(res.nb_card);
         
     })
     /*** Misc ***/
@@ -159,6 +163,10 @@ document.addEventListener("DOMContentLoaded", function() {
         lobbyName.value = "";
         lobbyLog.innerHTML = "";
         btnConnecter.removeAttribute("disabled");
+        document.querySelectorAll(".card").forEach(element => {
+            element.remove();
+        });
+        console.log("resetHTML");
     }
 
     document.addEventListener("keypress", function(e){
@@ -252,12 +260,26 @@ document.addEventListener("DOMContentLoaded", function() {
         cardDiv.setAttribute("value", card.value+" "+card.color);
 
         cardDiv.addEventListener("click", function(e) {
-            console.log("(click on " + e.target.getAttribute("value") + " card)");
+            valueSelected = e.target;
+            console.log("(click on " + valueSelected.getAttribute("value")  + " card)");
         }
         );
 
         return cardDiv;
     }
+
+function displayOwnCards(){
+    let cardDiv = document.createElement("canvas");
+        cardDiv.setAttribute("class", "card");
+        cardDiv.setAttribute("width", card_width);
+        cardDiv.setAttribute("height", card_height);
+        let ctx = cardDiv.getContext("2d");
+        ctx.fillStyle = "grey";
+        ctx.fillRect(0, 0, card_width, card_height);       
+
+        return cardDiv;
+}
+
     function displayStacks(stacks) {
         let stacksDiv = document.querySelectorAll(".cardstack");
         stacks.forEach(function(stack,index){
@@ -268,10 +290,15 @@ document.addEventListener("DOMContentLoaded", function() {
         
     }
 
-    function displayHand(hand) {
-        hand.forEach(card => {
-            canvasHand.appendChild(displayCard(card));
-        });
+    function displayHand(numberCards) {
+        for(let i = 0;i<numberCards;i++){
+            let cardDiv = displayOwnCards();
+            cardDiv.addEventListener("click", function(e) {
+                valueSelected = e.target;
+                console.log("(click on " + valueSelected  + " card)");
+            });
+            canvasHand.appendChild(cardDiv);
+        }
     }
 
     function displayPlayersHands(hands) {

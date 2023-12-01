@@ -254,6 +254,7 @@ io.on('connection', function (socket) {
      */
     socket.on("launchGame", function(res){
         let lobby = seekLobby(res.lobbyName);
+        console.log(lobby);
         if(lobby != null && lobby.creator == res.idEmit){ // L'id de l'émetteur est forcément currentID
             lobby.launchGame();
             lobby.getClients().forEach(client => {
