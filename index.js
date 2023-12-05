@@ -156,7 +156,7 @@ io.on('connection', function (socket) {
         currentLobby = l;
         console.log("Nouveau lobby : " + name);
         sendLogToLobby(l, true, "Le lobby a bien été créé."); // ERREUR : Ne s'envoie pas
-        socket.emit("lobbyConnection", {lobby: name, isOwer: true});
+        socket.emit("lobbyConnection", JSON.stringify({lobby: name, isOwner: true}));
         // envoi de la nouvelle liste de lobby à tous les clients connectés
         io.sockets.emit("listLobby", JSON.stringify(lobbyArray));
     });
@@ -170,7 +170,7 @@ io.on('connection', function (socket) {
             sendLogToLobby(lobby, true, currentID + " a rejoint le lobby.");
             // envoi de la nouvelle liste de lobby à tous les clients connectés
             io.sockets.emit("listLobby", JSON.stringify(lobbyArray));
-        }else{console.log("Le client n'est pas dans un lobby");}
+        }else console.log("Le client n'est pas dans un lobby");
     });
 
     /**
@@ -184,7 +184,7 @@ io.on('connection', function (socket) {
             checkLobby(); // supprime le lobby si il est vide
             // envoi de la nouvelle liste de lobby à tous les clients connectés
             io.sockets.emit("listLobby", JSON.stringify(lobbyArray));
-        }else{console.log("Le client n'est pas dans un lobby");}
+        }else console.log("Le client n'est pas dans un lobby");
     });
 
     // fermeture
@@ -201,6 +201,8 @@ io.on('connection', function (socket) {
             }
             // suppression de l'entrée
             delete clients[currentID];
+            currentID = null;
+            currentLobby = null;
             // envoi de la nouvelle liste pour mise à jour
             socket.broadcast.emit("liste", Object.keys(clients));
         }
@@ -219,6 +221,8 @@ io.on('connection', function (socket) {
             }
             // suppression de l'entrée
             delete clients[currentID];
+            currentID = null;
+            currentLobby = null;
             // envoi de la nouvelle liste pour mise à jour
             socket.broadcast.emit("liste", Object.keys(clients));
         }
@@ -263,38 +267,31 @@ io.on('connection', function (socket) {
     /*
      * Gestion du jeu
      */
-    socket.on("launchGame", function(res){
-        let lobby = seekLobby(res.lobbyName);
-        console.log(lobby);
-        if(lobby != null && lobby.owner == res.idEmit){ // L'id de l'émetteur est forcément currentID
-            lobby.launchGame();
-            lobby.getClients().forEach(client => {
-                let data = new GameData(lobby,client);
+    socket.on("launchGame", function(){
+        if(currentLobby != null && currentLobby.owner == currentID){
+            currentLobby.launchGame();
+            currentLobby.getClients().forEach(client => {
+                let data = new GameData(currentLobby,client);
                 clients[client].emit("launchGame", JSON.stringify(data));
             });
-        }else{console.log("Erreur dans la recherche du lobby.");}
+        }else console.log("Le client n'est pas dans un lobby ou il n'en est pas le créateur");
     });
 
     socket.on("hint", function(res){
-        let lobby = seekLobby(res.lobbyName);
-        if(lobby != null && lobby.owner == res.idEmit){ // L'id de l'émetteur est forcément currentID
+        if(currentLobby != null){
             game.give_information(res.idPlayer, res.value);
-        }else{console.log("Erreur dans la recherche du lobby.");}
+        }else console.log("Le client n'est pas dans un lobby");
     });
-
 
     socket.on("discard", function(res){
-        let lobby = seekLobby(res.lobbyName);
-        if(lobby != null && lobby.owner == res.idEmit){ // L'id de l'émetteur est forcément currentID
-            game.discard_card(res.idPlayer, res.card);
-        }else{console.log("Erreur dans la recherche du lobby.");}
+        if(currentLobby != null){
+            game.discard_card(currentID, res.card);
+        }else{console.log("Le client n'est pas dans un lobby");}
     });
 
-
     socket.on("play", function(res){
-        let lobby = seekLobby(res.lobbyName);
-        if(lobby != null && lobby.owner == res.idEmit){ // L'id de l'émetteur est forcément currentID
-            game.play_card(res.idPlayer, res.indexCard, res.indexStack)
-        }else{console.log("Erreur dans la recherche du lobby.");}
+        if(currentLobby != null){
+            game.play_card(currentID, res.indexCard, res.indexStack)
+        }else console.log("Le client n'est pas dans un lobby");
     });
 });

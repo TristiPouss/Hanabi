@@ -127,7 +127,6 @@ document.addEventListener("DOMContentLoaded", function() {
         let d = JSON.parse(data);
         lobby = d.lobby;
         isOwner = d.isOwner;
-        console.log(isOwner);
         goToLobby();
     });
 
@@ -215,7 +214,6 @@ document.addEventListener("DOMContentLoaded", function() {
         }
         resetHTML();
         document.getElementById("lobby").innerHTML = lobby;
-        console.log(isOwner);
         if(isOwner){
             btnCommencer.removeAttribute('disabled');
             btnCommencer.setAttribute("style","display:block");
