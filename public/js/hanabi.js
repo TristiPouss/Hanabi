@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", function() {
     // Variables
     let id = null;
     let lobby = null;
+    let isOwner = false;
     let userArray = [];
     let lobbyArray = [];
 
@@ -18,8 +19,6 @@ document.addEventListener("DOMContentLoaded", function() {
     const btnCreer = document.getElementById("btnCreer");
     const btnQuitter = document.getElementById("btnQuitter");
     let btnCommencer = document.getElementById("btnCommencer");
-    btnCommencer.setAttribute('disabled',true);
-    btnCommencer.setAttribute("style","display:none");
 
     const loginPage = document.getElementById("radio1");
     const lobbyListPage = document.getElementById("radio2");
@@ -38,20 +37,26 @@ document.addEventListener("DOMContentLoaded", function() {
 
     let valueSelected = null;
 
-    resetHTML();
-    goToLogin();
+    /*resetHTML();
+    if(!loginPage.checked){
+        goToLogin();
+    }
+    username.focus();*/
 
     // Reset
     socket.on("reset", function (){
         reset();
-        goToLogin();
+        if(!loginPage.checked){
+            goToLogin();
+        }
+        username.focus();
     });
 
     // Login
     btnConnecter.addEventListener("click", function(e){
         let u = checkUsername(preventInjection(username.value.trim()));
         if(u != null && u != ""){
-            // Connexion
+            // Connection
             socket.emit("login", u);
             id = u;
             // sending to main page
@@ -64,7 +69,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    // Lobby list receive
+    // Lobby list reception
     socket.on("listLobby", function(l){
         if(id != null && lobby == null){
             lobbyArray = JSON.parse(l);
@@ -86,6 +91,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
+    // Log message reception
     socket.on("log", function (log) {
         if(id != null && lobby != null){
             let msg = JSON.parse(log);
@@ -112,31 +118,41 @@ document.addEventListener("DOMContentLoaded", function() {
         }else console.log("Cdt pour recevoir le message non remplies");
     });
 
+    socket.on("newOwner", function(){
+        btnCommencer.removeAttribute('disabled');
+        btnCommencer.setAttribute("style","display:block");
+    });
+
+    socket.on("lobbyConnection", function(data){
+        let d = JSON.parse(data);
+        lobby = d.lobby;
+        isOwner = d.isOwner;
+        console.log(isOwner);
+        goToLobby();
+    });
+
+    // Create lobby
     btnCreer.addEventListener("click", function() {
         let name = checkLobbyName(preventInjection(lobbyName.value.trim()));
         if(name != null && name != ""){
             socket.emit("createLobby", name);
-            lobby = name;
-            goToLobby();
-            btnCommencer.removeAttribute('disabled');
-            btnCommencer.setAttribute("style","display:block");
         }else{
             alert("Le nom du lobby n'est pas valide.\nIl ne doit pas contenir de caractère spécial ou d'espace.");
         }
         lobbyName.value = "";
     });
 
+    // Disconnect from lobby
     function disconnectLobby() {
         socket.emit("disconnectLobby", lobby);
         lobby = null;
         lobbyName.value = "";
         goToLobbyList();
     }
-
     btnQuitter.addEventListener("click", disconnectLobby);
     socket.on("closingLobby", disconnectLobby);
 
-
+    // Start the game
     btnCommencer.addEventListener("click",function(cc){
         socket.emit("launchGame",{idEmit:id,lobbyName:lobby});
         console.log(lobby);
@@ -148,6 +164,7 @@ document.addEventListener("DOMContentLoaded", function() {
         displayHand(res.nb_card);
         
     })
+
     /*** Misc ***/
 
     function reset(){
@@ -163,6 +180,9 @@ document.addEventListener("DOMContentLoaded", function() {
         lobbyName.value = "";
         lobbyLog.innerHTML = "";
         btnConnecter.removeAttribute("disabled");
+        username.removeAttribute("disabled");
+        btnCommencer.setAttribute('disabled',true);
+        btnCommencer.setAttribute("style","display:none");
         document.querySelectorAll(".card").forEach(element => {
             element.remove();
         });
@@ -190,6 +210,11 @@ document.addEventListener("DOMContentLoaded", function() {
         }
         resetHTML();
         document.getElementById("lobby").innerHTML = lobby;
+        console.log(isOwner);
+        if(isOwner){
+            btnCommencer.removeAttribute('disabled');
+            btnCommencer.setAttribute("style","display:block");
+        }
         lobbyPage.checked = true;
     }
 
@@ -217,8 +242,8 @@ document.addEventListener("DOMContentLoaded", function() {
             });
         }
         resetHTML();
-        username.focus();
         loginPage.checked = true;
+        username.focus();
     }
 
     function checkUsername(str){
