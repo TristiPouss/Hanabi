@@ -22,14 +22,24 @@ app.get('/', function(req, res) {
 
 let lobbyArray = [];
 
+function seekLobby(name){
+    let res = null;
+    lobbyArray.forEach(lobby => {
+        if(lobby.name == name){
+            res = lobby;
+        }
+    });
+    return res;
+}
+
 class Lobby {
     name;
-    creator;
+    owner;
     littlePlayers;
     currGame;
     constructor(n, id){
         this.name = n;
-        this.creator = id;
+        this.owner = id;
         this.littlePlayers = [id];
         lobbyArray.push(this);
     }
@@ -55,21 +65,29 @@ class Lobby {
     }
 
     rmPlayer(n){
-        if(n == this.creator){
-            this.getClients().forEach(client => {
-                clients[client].emit("closingLobby");
-                clients[client].emit("resetHTMLL");
-            });
+        if(n == this.owner && this.littlePlayers.length > 1){
+            this.electNewOwner();
         }
         const index = this.littlePlayers.indexOf(n);
-            if (index > -1) { // only splice array when item is found
-                this.littlePlayers.splice(index, 1); // 2nd parameter means remove one item only
-                return true;
-            }
+        if (index > -1) {
+            this.littlePlayers.splice(index, 1);
+            return true;
+        }
         return false;
     }
-}
 
+    electNewOwner(){
+        let i = 0;
+        while(i < this.littlePlayers.length){
+            let curr = this.littlePlayers[i];
+            if(curr != this.owner){
+                this.owner = curr;
+                return;
+            }
+            ++i;
+        }
+    }
+}
 
 class GameData {
     constructor(Lobby,Player){
@@ -83,29 +101,6 @@ class GameData {
             }
         });
     }
-}
-/*** Misc ***/
-
-function seekLobby(name){
-    let res = null;
-    lobbyArray.forEach(lobby => {
-        if(lobby.name == name){
-            res = lobby;
-        }
-    });
-    return res;
-}
-
-function checkLobby(){
-    lobbyArray.forEach(l => {
-        if(l.littlePlayers.length == 0){
-            const index = lobbyArray.indexOf(l);
-            if (index > -1) { // only splice array when item is found
-                lobbyArray.splice(index, 1); // 2nd parameter means remove one item only
-            }
-            console.log("Suppresion du lobby :" + l.name);
-        }
-    });
 }
 
 /*** Log msg ***/
@@ -131,6 +126,7 @@ io.on('connection', function (socket) {
     // message de debug
     console.log("Un client s'est connecté");
     var currentID = null;
+    var currentLobby = null;
 
     /**
      *  Doit être la première action après la connexion.
@@ -157,8 +153,10 @@ io.on('connection', function (socket) {
             name = name + "(1)";
         }
         let l = new Lobby(name, currentID);
+        currentLobby = l;
         console.log("Nouveau lobby : " + name);
-        sendLogToLobby(seekLobby(name), true, "Le lobby a bien été créé.");
+        sendLogToLobby(l, true, "Le lobby a bien été créé."); // ERREUR : Ne s'envoie pas
+        socket.emit("lobbyConnection", {lobby: name, isOwer: true});
         // envoi de la nouvelle liste de lobby à tous les clients connectés
         io.sockets.emit("listLobby", JSON.stringify(lobbyArray));
     });
@@ -167,10 +165,12 @@ io.on('connection', function (socket) {
         let lobby = seekLobby(name);
         if(lobby != null){
             lobby.addPlayer(currentID);
+            currentLobby = lobby;
+            socket.emit("lobbyConnection", JSON.stringify({lobby: name, isOwner: false}));
             sendLogToLobby(lobby, true, currentID + " a rejoint le lobby.");
             // envoi de la nouvelle liste de lobby à tous les clients connectés
             io.sockets.emit("listLobby", JSON.stringify(lobbyArray));
-        }else{console.log("Erreur dans la recherche du lobby.");}
+        }else{console.log("Le client n'est pas dans un lobby");}
     });
 
     /**
@@ -178,24 +178,13 @@ io.on('connection', function (socket) {
      */
 
     // Déconnexion du lobby
-    socket.on("disconnectLobby", function(name){
-        let lobby = seekLobby(name);
-        if(lobby != null){
-            if(lobby.creator == currentID){ // Si l'utilisateur était l'hôte, on ferme le lobby
-                lobby.getClients().forEach(client => {
-                    if (client != currentID){
-                        clients[client].emit("closingLobby");
-                        clients[client].emit("resetHTMLL");
-                        sendLogToLobby(lobby, true, client + " a quitté le lobby.");
-                    }
-                });
-            }
-            //
-            disconnectFromAllLobby(currentID);
+    socket.on("disconnectLobby", function(){
+        if(currentLobby != null){
+            disconnectFromLobby();
             checkLobby(); // supprime le lobby si il est vide
             // envoi de la nouvelle liste de lobby à tous les clients connectés
             io.sockets.emit("listLobby", JSON.stringify(lobbyArray));
-        }else{console.log("Erreur dans la recherche du lobby.");}
+        }else{console.log("Le client n'est pas dans un lobby");}
     });
 
     // fermeture
@@ -203,10 +192,13 @@ io.on('connection', function (socket) {
         // si client était identifié (devrait toujours être le cas)
         if (currentID) {
             console.log("Sortie de l'utilisateur " + currentID);
-            // déconnexion du lobby
-            disconnectFromAllLobby(currentID);
-            checkLobby();
-            io.sockets.emit("listLobby", JSON.stringify(lobbyArray));
+            // si client était dans un lobby
+            if(currentLobby){
+                // déconnexion du lobby
+                disconnectFromLobby();
+                checkLobby();
+                io.sockets.emit("listLobby", JSON.stringify(lobbyArray));
+            }
             // suppression de l'entrée
             delete clients[currentID];
             // envoi de la nouvelle liste pour mise à jour
@@ -218,10 +210,13 @@ io.on('connection', function (socket) {
     socket.on("disconnect", function(reason) {
         // si client était identifié
         if (currentID) {
-            // déconnexion du lobby
-            disconnectFromAllLobby(currentID);
-            checkLobby();
-            io.sockets.emit("listLobby", JSON.stringify(lobbyArray));
+            // si client était dans un lobby
+            if(currentLobby){
+                // déconnexion du lobby
+                disconnectFromLobby();
+                checkLobby();
+                io.sockets.emit("listLobby", JSON.stringify(lobbyArray));
+            }
             // suppression de l'entrée
             delete clients[currentID];
             // envoi de la nouvelle liste pour mise à jour
@@ -232,21 +227,37 @@ io.on('connection', function (socket) {
 
     /*** Misc ***/
 
-    function sendLogToLobby(lobby, isLobby, txt){
-        lobby.getClients().forEach(client => {
+    /** le parametre isLobby est : - vrai si le log doit venir du lobby 
+     *                             - faux s'il vient du jeu 
+     */ 
+    function sendLogToLobby(isLobby, txt){
+        currentLobby.getClients().forEach(client => {
             if(client != currentID){
                 clients[client].emit("log", JSON.stringify(new Log(isLobby, txt, Date.now())));
-                console.log("Envoi d'un message au lobby " + lobby.name);
+                console.log("Envoi d'un message au lobby " + currentLobby.name);
             }
         });
     }
 
-    function disconnectFromAllLobby(id){
-        lobbyArray.forEach(lobby => {
-            if(lobby.rmPlayer(id)){
-                sendLogToLobby(lobby, true, currentID + " a quitté le lobby.");
-            };
-        })
+    function disconnectFromLobby(){
+        // double vérification du currentLobby
+        if(currentLobby != null && currentLobby.rmPlayer(currentID)){
+            sendLogToLobby(currentLobby, true, currentID + " a quitté le lobby.");
+            currentLobby.getClients().forEach(client => {
+                if(client == currentLobby.owner){
+                    clients[client].emit('newOwner');
+                }
+            });
+        };
+    }
+
+    function checkLobby(){
+        // double vérification du currentLobby
+        if(currentLobby != null && currentLobby.littlePlayers.length == 0){
+            const index = lobbyArray.indexOf(currentLobby);
+            if (index > -1) lobbyArray.splice(index, 1);
+            console.log("Suppresion du lobby :" + currentLobby.name);
+        }
     }
 
     /*
@@ -255,7 +266,7 @@ io.on('connection', function (socket) {
     socket.on("launchGame", function(res){
         let lobby = seekLobby(res.lobbyName);
         console.log(lobby);
-        if(lobby != null && lobby.creator == res.idEmit){ // L'id de l'émetteur est forcément currentID
+        if(lobby != null && lobby.owner == res.idEmit){ // L'id de l'émetteur est forcément currentID
             lobby.launchGame();
             lobby.getClients().forEach(client => {
                 let data = new GameData(lobby,client);
@@ -266,7 +277,7 @@ io.on('connection', function (socket) {
 
     socket.on("hint", function(res){
         let lobby = seekLobby(res.lobbyName);
-        if(lobby != null && lobby.creator == res.idEmit){ // L'id de l'émetteur est forcément currentID
+        if(lobby != null && lobby.owner == res.idEmit){ // L'id de l'émetteur est forcément currentID
             game.give_information(res.idPlayer, res.value);
         }else{console.log("Erreur dans la recherche du lobby.");}
     });
@@ -274,7 +285,7 @@ io.on('connection', function (socket) {
 
     socket.on("discard", function(res){
         let lobby = seekLobby(res.lobbyName);
-        if(lobby != null && lobby.creator == res.idEmit){ // L'id de l'émetteur est forcément currentID
+        if(lobby != null && lobby.owner == res.idEmit){ // L'id de l'émetteur est forcément currentID
             game.discard_card(res.idPlayer, res.card);
         }else{console.log("Erreur dans la recherche du lobby.");}
     });
@@ -282,7 +293,7 @@ io.on('connection', function (socket) {
 
     socket.on("play", function(res){
         let lobby = seekLobby(res.lobbyName);
-        if(lobby != null && lobby.creator == res.idEmit){ // L'id de l'émetteur est forcément currentID
+        if(lobby != null && lobby.owner == res.idEmit){ // L'id de l'émetteur est forcément currentID
             game.play_card(res.idPlayer, res.indexCard, res.indexStack)
         }else{console.log("Erreur dans la recherche du lobby.");}
     });
