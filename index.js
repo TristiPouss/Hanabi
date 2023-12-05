@@ -209,9 +209,9 @@ io.on('connection', function (socket) {
         }
     }
     // fermeture
-    socket.on("logout", logout_disconnect());
+    socket.on("logout", logout_disconnect);
     // déconnexion de la socket
-    socket.on("disconnect", logout_disconnect());
+    socket.on("disconnect", logout_disconnect);
 
     /*** Misc ***/
 
