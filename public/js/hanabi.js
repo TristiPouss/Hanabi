@@ -199,6 +199,11 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     })
 
+    document.getElementById("btnAide").addEventListener("click", function(){
+        window.open("https://www.ludicbox.fr/ressources/9088-regle-du-jeu-Hanabi.pdf", "_blank").focus();
+    });
+
+
     function goToLobby(){
         if(loginPage.checked){
             loginPage.checked = false;
@@ -277,11 +282,13 @@ document.addEventListener("DOMContentLoaded", function() {
         cardDiv.setAttribute("width", card_width);
         cardDiv.setAttribute("height", card_height);
         let ctx = cardDiv.getContext("2d");
-        ctx.fillStyle = card.color;
-        ctx.fillRect(0, 0, card_width, card_height);
         ctx.fillStyle = "black";
-        ctx.font = "30px Arial";
+        ctx.fillRect(0, 0, card_width, card_height);
+        ctx.fillStyle = card.color;
+        ctx.font = "30px Hanami";
         ctx.fillText(card.value, 10, 50);
+
+
         cardDiv.setAttribute("value", card.value+" "+card.color);
 
         cardDiv.addEventListener("click", function(e) {
@@ -361,5 +368,103 @@ function displayOwnCards(){
         }
     }
 
+    class Particle {
+
+        static gravity = 0.05;
+        
+        constructor() {
+            this.w = this.h = Math.random()*4+1;
+            
+            this.x = xPoint-this.w/2; // x coordinate
+            this.y = yPoint-this.h/2;
+            this.vx = (Math.random()-0.5)*10;
+            this.vy = (Math.random()-0.5)*10;
+            this.alpha = Math.random()*.5+.5;
+            this.color = color ;
+        } 
+    
+        move() {
+            this.x += this.vx;
+            this.vy += this.gravity;
+            this.y += this.vy;
+            this.alpha -= 0.01;
+            if (this.x <= -this.w || this.x >= screen.width ||
+                this.y >= screen.height ||
+                this.alpha <= 0) {
+                    return false;
+            }
+            return true;
+        }
+
+        draw(c) {
+            c.save();
+            c.beginPath();
+            
+            c.translate(this.x+this.w/2, this.y+this.h/2);
+            c.arc(0, 0, this.w, 0, Math.PI*2);
+            c.fillStyle = this.color;
+            c.globalAlpha = this.alpha;
+            
+            c.closePath();
+            c.fill();
+            c.restore();
+        }
+    }
+
+    function updateCard(color) {
+        if (particles.length < 500 && Math.random() < probability) {
+            createFirework(color);
+        }
+        var alive = [];
+        for (var i=0; i<particles.length; i++) {
+            if (particles[i].move()) {
+                alive.push(particles[i]);
+            }
+        }
+        particles = alive;
+    }
+
+    function paintCard(ctx) {
+        ctx.fillStyle = "rgba(0,0,0,0.2)";
+        ctx.fillRect(0, 0, w, h);
+        ctx.globalCompositeOperation = 'lighter';
+        for (var i=0; i<particles.length; i++) {
+            particles[i].draw(ctx);
+        }
+    } 
+
+    function createFirework(color) {
+        xPoint = Math.random()*(w-200)+100;
+        yPoint = Math.random()*(h-200)+100;
+        var nFire = Math.random()*50+100;
+        for (let i=0; i<nFire; i++) {
+            var particle = new Particle(color);
+
+            var vy = Math.sqrt(25-particle.vx*particle.vx);
+            if (Math.abs(particle.vy) > vy) {
+                particle.vy = particle.vy>0 ? vy: -vy;
+            }
+            particles.push(particle);
+        }
+    } 
+
+
+function draw_a_firework(ctx,color){
+    let nbParticles = Math.random() * 100;
+    let center = {x:Math.random() * canvas.width, y:Math.random() * canvas.height};
+    for (let i = 0; i<nbParticles; i++){
+        ctx.beginPath();
+        let vx = Math.random() * 10 - 5;
+        let vy = Math.random() * 10 - 5;
+        ctx.arc(center.x, center.y, 10, 0, 2 * Math.PI);
+        ctx.strokeStyle = color;
+        ctx.closePath();
+        ctx.stroke();
+    }
+  }  
+//Firework animation - inspired from https://codepen.io/judag/pen/XmXMOL
 
 }); // End
+
+        
+        

@@ -356,6 +356,15 @@ main #gameBoard {
   box-shadow: inset 0 10px 30px 5px rgba(0, 0, 0, 0.2);
   
 }
+
+main #playBtns {
+  grid-row-start: 3;
+  grid-column-start: 3;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+}
 .cardstack {
   height: 140px;
   width: 100px;
