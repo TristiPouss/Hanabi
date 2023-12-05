@@ -231,8 +231,8 @@ document.addEventListener("DOMContentLoaded", function() {
             });
         }
         resetHTML();
-        lobbyName.focus();
         lobbyListPage.checked = true;
+        lobbyName.focus();
     }
 
     function goToLogin(){

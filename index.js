@@ -41,6 +41,7 @@ class Lobby {
         this.name = n;
         this.owner = id;
         this.littlePlayers = [id];
+        this.currGame = null;
         lobbyArray.push(this);
     }
 
@@ -155,8 +156,8 @@ io.on('connection', function (socket) {
         let l = new Lobby(name, currentID);
         currentLobby = l;
         console.log("Nouveau lobby : " + name);
-        sendLogToLobby(l, true, "Le lobby a bien été créé."); // ERREUR : Ne s'envoie pas
         socket.emit("lobbyConnection", JSON.stringify({lobby: name, isOwner: true}));
+        sendLogToLobby(true, "Le lobby a bien été créé."); // Err : Non reçu 
         // envoi de la nouvelle liste de lobby à tous les clients connectés
         io.sockets.emit("listLobby", JSON.stringify(lobbyArray));
     });
@@ -167,7 +168,7 @@ io.on('connection', function (socket) {
             lobby.addPlayer(currentID);
             currentLobby = lobby;
             socket.emit("lobbyConnection", JSON.stringify({lobby: name, isOwner: false}));
-            sendLogToLobby(lobby, true, currentID + " a rejoint le lobby.");
+            sendLogToLobby(true, currentID + " a rejoint le lobby.");
             // envoi de la nouvelle liste de lobby à tous les clients connectés
             io.sockets.emit("listLobby", JSON.stringify(lobbyArray));
         }else console.log("Le client n'est pas dans un lobby");
@@ -187,8 +188,8 @@ io.on('connection', function (socket) {
         }else console.log("Le client n'est pas dans un lobby");
     });
 
-    // fermeture
-    socket.on("logout", function() {
+
+    function logout_disconnect (){
         // si client était identifié (devrait toujours être le cas)
         if (currentID) {
             console.log("Sortie de l'utilisateur " + currentID);
@@ -206,28 +207,11 @@ io.on('connection', function (socket) {
             // envoi de la nouvelle liste pour mise à jour
             socket.broadcast.emit("liste", Object.keys(clients));
         }
-    });
-
+    }
+    // fermeture
+    socket.on("logout", logout_disconnect());
     // déconnexion de la socket
-    socket.on("disconnect", function(reason) {
-        // si client était identifié
-        if (currentID) {
-            // si client était dans un lobby
-            if(currentLobby){
-                // déconnexion du lobby
-                disconnectFromLobby();
-                checkLobby();
-                io.sockets.emit("listLobby", JSON.stringify(lobbyArray));
-            }
-            // suppression de l'entrée
-            delete clients[currentID];
-            currentID = null;
-            currentLobby = null;
-            // envoi de la nouvelle liste pour mise à jour
-            socket.broadcast.emit("liste", Object.keys(clients));
-        }
-        console.log("Client déconnecté");
-    });
+    socket.on("disconnect", logout_disconnect());
 
     /*** Misc ***/
 
@@ -246,7 +230,7 @@ io.on('connection', function (socket) {
     function disconnectFromLobby(){
         // double vérification du currentLobby
         if(currentLobby != null && currentLobby.rmPlayer(currentID)){
-            sendLogToLobby(currentLobby, true, currentID + " a quitté le lobby.");
+            sendLogToLobby(true, currentID + " a quitté le lobby.");
             currentLobby.getClients().forEach(client => {
                 if(client == currentLobby.owner){
                     clients[client].emit('newOwner');
@@ -260,7 +244,7 @@ io.on('connection', function (socket) {
         if(currentLobby != null && currentLobby.littlePlayers.length == 0){
             const index = lobbyArray.indexOf(currentLobby);
             if (index > -1) lobbyArray.splice(index, 1);
-            console.log("Suppresion du lobby :" + currentLobby.name);
+            console.log("Suppresion du lobby : " + currentLobby.name);
         }
     }
 
@@ -268,13 +252,17 @@ io.on('connection', function (socket) {
      * Gestion du jeu
      */
     socket.on("launchGame", function(){
-        if(currentLobby != null && currentLobby.owner == currentID){
+        if(currentLobby != null 
+        && currentLobby.owner == currentID 
+        && currentLobby.currGame == null
+        && currentLobby.littlePlayers.length > 1){
             currentLobby.launchGame();
+            sendLogToLobby(false, "Lancement de la partie");
             currentLobby.getClients().forEach(client => {
                 let data = new GameData(currentLobby,client);
                 clients[client].emit("launchGame", JSON.stringify(data));
             });
-        }else console.log("Le client n'est pas dans un lobby ou il n'en est pas le créateur");
+        }else console.log("La partie ne peut pas être lancée");
     });
 
     socket.on("hint", function(res){
