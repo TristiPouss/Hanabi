@@ -273,7 +273,7 @@ io.on('connection', function (socket) {
 
     socket.on("discard", function(res){
         if(currentLobby != null){
-            game.discard_card(currentID, res.card);
+            game.discard_card(currentID, res.indexCard);
         }else{console.log("Le client n'est pas dans un lobby");}
     });
 

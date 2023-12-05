@@ -96,7 +96,8 @@ class Game{
         return false;
     }
 
-    discard_card(player, card){
+    discard_card(player, indexCard){
+        let card = this.hands[player][indexCard];
         this.discard.push(card);
         this.hands[player].splice(this.hands[player].indexOf(card), 1);
         this.hands[player].push(this.deck.cards.pop());

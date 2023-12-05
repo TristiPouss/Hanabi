@@ -447,7 +447,7 @@ main #playBtns {
   }
   
   #otherPlayer2 .card:not(:first-child) {
-      margin-bottom: -100px;
+      margin-top: -100px;
   }
   
   #otherPlayer2 .card:hover {
@@ -458,12 +458,12 @@ main #playBtns {
   #otherPlayer2 .card:hover ~ .card {
     position: relative;
     transition: 0.4s ease-out;
-    bottom: 60px;
+    top: 60px;
   }
 
 
   #otherPlayer3 .card {
-    rotate: 270deg;
+    rotate: -90deg;
   /*   margin-left: -50px; */
     transition: 0.4s ease-out;
     position: relative;

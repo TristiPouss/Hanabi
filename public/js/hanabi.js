@@ -162,12 +162,50 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     // On game launch response from server - display first hands
-    socket.on("launchGame",function(e){
+    socket.on("launchGame",function(e){ 
         let res = JSON.parse(e);
         displayPlayersHands(res.playersCards);
         displayHand(res.nb_card);
     })
 
+    // Play a card with a click on a cardstack with a card selected
+    let cardstacks = document.querySelectorAll(".cardstack");
+    cardstacks.forEach(stack => {
+        stack.addEventListener("click", function(e){
+            if(valueSelected != null && valueSelected.parentNode == canvasHand){
+                let res = {indexCard: Array.prototype.indexOf.call(canvasHand.children, valueSelected),indexStack: Array.prototype.indexOf.call(cardstacks, e.target)};
+                socket.emit("playCard", JSON.stringify(res));
+                valueSelected = null;
+            }
+        });
+    });
+
+    // Discard a card with a click on a cardstack with a card selected
+    let discard = document.getElementById("btnDefausser");
+    discard.addEventListener("click", function(e){
+        if(valueSelected != null && valueSelected.parentNode == canvasHand){
+            let res = {indexCard: Array.prototype.indexOf.call(canvasHand.children, valueSelected)};
+            socket.emit("discard", JSON.stringify(res));
+            valueSelected = null;
+        }
+    });
+
+
+    const myPopup = new Popup({
+        id: "my-popup",
+        title: "My First Popup",
+        content: `
+            An example popup.
+            Supports multiple lines.`,
+    });
+
+    //Open a popup to give a hint
+    let hint = document.getElementById("btnHint");
+    hint.addEventListener("click", function(e){
+        myPopup.show();
+    });
+
+    
     /*** Misc ***/
 
     function reset(){
