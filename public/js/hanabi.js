@@ -118,11 +118,14 @@ document.addEventListener("DOMContentLoaded", function() {
         }else console.log("Cdt pour recevoir le message non remplies");
     });
 
+
+    // Election of a new owner
     socket.on("newOwner", function(){
         btnCommencer.removeAttribute('disabled');
         btnCommencer.setAttribute("style","display:block");
     });
 
+    // Lobby connection
     socket.on("lobbyConnection", function(data){
         let d = JSON.parse(data);
         lobby = d.lobby;
@@ -148,20 +151,21 @@ document.addEventListener("DOMContentLoaded", function() {
         lobbyName.value = "";
         goToLobbyList();
     }
+
+    // Quit lobby
     btnQuitter.addEventListener("click", disconnectLobby);
     socket.on("closingLobby", disconnectLobby);
 
     // Start the game
     btnCommencer.addEventListener("click",function(cc){
-        socket.emit("launchGame",{idEmit:id,lobbyName:lobby});
-        console.log(lobby);
+        socket.emit("launchGame");
     });
 
+    // On game launch response from server - display first hands
     socket.on("launchGame",function(e){
         let res = JSON.parse(e);
         displayPlayersHands(res.playersCards);
         displayHand(res.nb_card);
-        
     })
 
     /*** Misc ***/
