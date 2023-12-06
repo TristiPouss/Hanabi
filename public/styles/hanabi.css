@@ -50,6 +50,16 @@ body > div {
   text-shadow: #000 2px 2px 2px;
 }
 
+#content header h3{
+  display: block;
+  margin-left:100px;
+  margin-top: 35px;
+  color: white;
+  font-family: "Hanami";
+  font-size: x-large;
+  text-shadow: #000 2px 2px 2px;
+}
+
 #content main {
   position: relative;
   z-index: 100;
@@ -108,7 +118,7 @@ body > div {
 
 #content aside p{
   color: white;
-  font-family: "Hanami";
+  font-family: fantasy;
   font-size: large;
   text-shadow: hsl(0, 0%, 0%) 2px 2px 2px;
   margin-left: 20px;

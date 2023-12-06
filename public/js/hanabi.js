@@ -64,7 +64,7 @@ document.addEventListener("DOMContentLoaded", function() {
             loginPage.checked = false;
             lobbyListPage.checked = true;
         }else{
-            alert("Le pseudo n'est pas valide.\nIl ne doit pas contenir de caractère spécial ou d'espace.");
+            alert("Le pseudo n'est pas valide.\nIl ne doit pas faire plus de 10 caractères de long et ne doit pas contenir de caractère spécial ou d'espace.");
             username.value = "";
         }
     });
@@ -73,7 +73,6 @@ document.addEventListener("DOMContentLoaded", function() {
     socket.on("listLobby", function(l){
         if(id != null && lobby == null){
             lobbyArray = JSON.parse(l);
-            console.log(lobbyArray);
             lobbyList.innerHTML = ""; // reset
             let curr = null;
             lobbyArray.forEach(_lobby => {
@@ -88,6 +87,18 @@ document.addEventListener("DOMContentLoaded", function() {
                     });
                 }
             });
+        }
+    });
+
+    socket.on("playerList", function(data){
+        if(id != null){
+            userArray = JSON.parse(data);
+            let playerString = "Joueurs : ";
+            for(let i = 0; i < userArray.length; ++i){
+                playerString += userArray[i];
+                (i != userArray.length-1) ? playerString += ", " : playerString += "";
+            }
+            document.getElementById("connectedPlayers").innerHTML = playerString;
         }
     });
 
@@ -115,7 +126,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 let history = lobbyLog.getElementsByTagName("p");
                 history[history.length-1].scrollIntoView(false);
             }
-        }else console.log("Cdt pour recevoir le message non remplies");
+        }
     });
 
 
@@ -139,7 +150,7 @@ document.addEventListener("DOMContentLoaded", function() {
         if(name != null && name != ""){
             socket.emit("createLobby", name);
         }else{
-            alert("Le nom du lobby n'est pas valide.\nIl ne doit pas contenir de caractère spécial ou d'espace.");
+            alert("Le nom du lobby n'est pas valide.\nIl ne doit pas faire plus de 15 caractères de long et ne doit pas contenir de caractère spécial ou d'espace.");
         }
         lobbyName.value = "";
     });
@@ -149,6 +160,7 @@ document.addEventListener("DOMContentLoaded", function() {
         socket.emit("disconnectLobby", lobby);
         lobby = null;
         lobbyName.value = "";
+        userArray = [];
         goToLobbyList();
     }
 
@@ -163,10 +175,25 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // On game launch response from server - display first hands
     socket.on("launchGame",function(e){ 
+        if(isOwner){
+            btnCommencer.setAttribute('disabled',true);
+            btnCommencer.setAttribute("style","display:none");
+        }
         let res = JSON.parse(e);
         displayPlayersHands(res.playersCards);
         displayHand(res.nb_card);
     })
+
+    socket.on("resetGame", function(){
+        if(isOwner){
+            btnCommencer.removeAttribute('disabled');
+            btnCommencer.setAttribute("style","display:block");
+        }
+        canvasHand.innerHTML = "";
+        canvasPlayer1.innerHTML = "";
+        canvasPlayer2.innerHTML = "";
+        canvasPlayer3.innerHTML = "";
+    });
 
     // Play a card with a click on a cardstack with a card selected
     let cardstacks = document.querySelectorAll(".cardstack");
@@ -211,8 +238,10 @@ document.addEventListener("DOMContentLoaded", function() {
     function reset(){
         id = null;
         lobby = null;
+        isOwner = false;
         userArray = [];
         lobbyArray = [];
+        valueSelected = null;
         resetHTML();
     }
 
@@ -227,7 +256,6 @@ document.addEventListener("DOMContentLoaded", function() {
         document.querySelectorAll(".card").forEach(element => {
             element.remove();
         });
-        console.log("resetHTML");
     }
 
     document.addEventListener("keypress", function(e){
@@ -292,25 +320,18 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function checkUsername(str){
-        if ((str===null) || (str===''))
-            return null;
-        else
-            str = str.toString();
+        if ((str===null) || (str==='') || (str.length > 10)) return null;
+        else str = str.toString();
         return (/^[\d\w]+$/g.test(str)) ? str : null;
     }
     function checkLobbyName(str){
-        if ((str===null) || (str===''))
-            return null;
-        else
-            str = str.toString();
+        if ((str===null) || (str==='') || (str.length > 15)) return null;
+        else str = str.toString();
         return (/^[\d\w\(\)]+$/g.test(str)) ? str : null;
     }
     function preventInjection(str) {
-        if ((str===null) || (str===''))
-            return null;
-        else
-            str = str.toString();
-
+        if ((str===null) || (str==='')) return null;
+        else str = str.toString();
         return str.replace(/\</g,"&lt;").replace(/\>/g, "&gt;"); 
     }
 
