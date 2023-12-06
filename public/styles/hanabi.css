@@ -499,6 +499,7 @@ main #playBtns {
 body > div, body > input[type=radio] {
     display: none;   
 }
+
         
 input[type=radio]:checked + div {
     display: block;   
@@ -669,4 +670,3 @@ input[type=button] {
 #btnAide:hover {
   color: rgb(0, 217, 255);
 }
-

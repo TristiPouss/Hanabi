@@ -5,6 +5,46 @@ document.addEventListener("DOMContentLoaded", function() {
 
     const socket = io.connect();
 
+    var actionHint;
+
+    //using the popup-js library to create a popup for the hint action
+    const popup = new Popup({
+        id: "override",
+        title: "Hint Action",
+        content: `Please choose on which information you want to give an hint
+        {btn-value-hint}[Value]{btn-color-hint}[Color]`,
+        sideMargin: "1.5em",
+        fontSizeMultiplier: "1.2",
+        backgroundColor: "white",
+        allowClose: true,
+        css: `
+        .popup.override .custom-space-out {
+            display: flex;
+            font-family: "Hanami";
+            justify-content: center;
+            gap: 1.5em;
+        }`,
+        loadCallback: () => {
+            /* button functionality */
+            document.querySelector("button.value-hint").onclick =
+                () => {
+                    popup.hide();
+                    let popupNode = document.getElementsByClassName("popup")[0];
+                    popupNode.style.display="none";
+                    actionHint = "value";
+                    // user wants to use local data
+                };
+            document.querySelector("button.color-hint").onclick =
+                () => {
+                    popup.hide();
+                    let popupNode = document.getElementsByClassName("popup")[0];
+                    popupNode.style.display="none";
+                    actionHint = "color";
+                    // user wants to use cloud data
+                };
+        },
+    });
+
     // Variables
     let id = null;
     let lobby = null;
@@ -217,19 +257,27 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-
-    const myPopup = new Popup({
-        id: "my-popup",
-        title: "My First Popup",
-        content: `
-            An example popup.
-            Supports multiple lines.`,
-    });
-
     //Open a popup to give a hint
     let hint = document.getElementById("btnHint");
     hint.addEventListener("click", function(e){
-        myPopup.show();
+        let popupNode = document.getElementsByClassName("popup")[0];
+        popupNode.style.display="block";
+        popup.show();
+        while(actionHint == null){
+            if (selectedCard != null && selectedCard.parentNode != canvasHand){
+                let hint_value = null;
+                if (actionHint == "value"){
+                    hint_value = selectedCard.getAttribute("value").split(" ")[0];
+                } else if (actionHint == "color"){
+                    hint_value = selectedCard.getAttribute("value").split(" ")[1];   
+                }
+                let res = {idPlayer:"GEEEEEEEEEEE", value: hint_value};
+                socket.emit("hint", JSON.stringify(res));
+                selectedCard = null;
+            } else {
+                alert("Please select a card");
+            }
+        }
     });
 
     
@@ -301,8 +349,8 @@ document.addEventListener("DOMContentLoaded", function() {
             });
         }
         resetHTML();
-        lobbyListPage.checked = true;
         lobbyName.focus();
+        lobbyListPage.checked = true;
     }
 
     function goToLogin(){
@@ -428,88 +476,6 @@ function displayOwnCards(){
                 break;
         }
     }
-
-    class Particle {
-
-        static gravity = 0.05;
-        
-        constructor() {
-            this.w = this.h = Math.random()*4+1;
-            
-            this.x = xPoint-this.w/2; // x coordinate
-            this.y = yPoint-this.h/2;
-            this.vx = (Math.random()-0.5)*10;
-            this.vy = (Math.random()-0.5)*10;
-            this.alpha = Math.random()*.5+.5;
-            this.color = color ;
-        } 
-    
-        move() {
-            this.x += this.vx;
-            this.vy += this.gravity;
-            this.y += this.vy;
-            this.alpha -= 0.01;
-            if (this.x <= -this.w || this.x >= screen.width ||
-                this.y >= screen.height ||
-                this.alpha <= 0) {
-                    return false;
-            }
-            return true;
-        }
-
-        draw(c) {
-            c.save();
-            c.beginPath();
-            
-            c.translate(this.x+this.w/2, this.y+this.h/2);
-            c.arc(0, 0, this.w, 0, Math.PI*2);
-            c.fillStyle = this.color;
-            c.globalAlpha = this.alpha;
-            
-            c.closePath();
-            c.fill();
-            c.restore();
-        }
-    }
-
-    function updateCard(color) {
-        if (particles.length < 500 && Math.random() < probability) {
-            createFirework(color);
-        }
-        var alive = [];
-        for (var i=0; i<particles.length; i++) {
-            if (particles[i].move()) {
-                alive.push(particles[i]);
-            }
-        }
-        particles = alive;
-    }
-
-    function paintCard(ctx) {
-        ctx.fillStyle = "rgba(0,0,0,0.2)";
-        ctx.fillRect(0, 0, w, h);
-        ctx.globalCompositeOperation = 'lighter';
-        for (var i=0; i<particles.length; i++) {
-            particles[i].draw(ctx);
-        }
-    } 
-
-    function createFirework(color) {
-        xPoint = Math.random()*(w-200)+100;
-        yPoint = Math.random()*(h-200)+100;
-        var nFire = Math.random()*50+100;
-        for (let i=0; i<nFire; i++) {
-            var particle = new Particle(color);
-
-            var vy = Math.sqrt(25-particle.vx*particle.vx);
-            if (Math.abs(particle.vy) > vy) {
-                particle.vy = particle.vy>0 ? vy: -vy;
-            }
-            particles.push(particle);
-        }
-    } 
-
-
 function draw_a_firework(ctx,color){
     let nbParticles = Math.random() * 100;
     let center = {x:Math.random() * canvas.width, y:Math.random() * canvas.height};

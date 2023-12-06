@@ -227,9 +227,9 @@ io.on('connection', function (socket) {
 
     /*** Misc ***/
 
-    /** le parametre isLobby est : - vrai si le log doit venir du lobby 
-     *                             - faux s'il vient du jeu 
-     */ 
+    /** le parametre isLobby est : - vrai si le log doit venir du lobby
+     *                             - faux s'il vient du jeu
+     */
     function sendLogToLobby(isLobby, txt){
         currentLobby.getClients().forEach(client => {
             clients[client].emit("log", JSON.stringify(new Log(isLobby, txt, Date.now())));

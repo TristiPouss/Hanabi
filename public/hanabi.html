@@ -74,19 +74,20 @@
             <div id="myCards">
             </div>
             <div id="playBtns">
+                <div id="hintPopup" style="display: none;">
+                    <header>
+                        <h2>Do you want to give an hint on the </h2>
+                        <input type="button" value="Color" id="btnColor">
+                        <input type="button" value="Value" id="btnNumber">
+                    </header>
+                    <footer><input type="button" value="Fermer" id="closePopup"></footer>
+                </div>
                 <input type="button" value="Hint" id="btnHint">
                 <input type="button" value="Defausser" id="btnDefausser">
         </main>
         <footer>
         </footer>
-        <div id="bcIndications" style="display: none;">
-            <header>
-                <input type="radio" name="colorXORnumber" id="btnColor">
-                <input type="radio" name="colorXORnumber" id="btnNumber">
-            </header>
-            <div id="bcAideResults"></div>
-            <footer><input type="button" value="Fermer" id="btnFermer"></footer>
-        </div>
+       
     </div>
         <div class="hill3"></div>
         <div class="hill2"></div>
