@@ -348,9 +348,43 @@ main #otherPlayer3 {
   grid-column-start:3;
   
 }
+
+#otherPlayer1Name, #otherPlayer2Name, #otherPlayer3Name{
+  margin: auto;
+  font-family: "Hanami";
+  color: white;
+  font-size: x-large;
+  text-shadow: hsl(0, 0%, 0%) 2px 2px 2px;
+}
+
 main #myCards {
   grid-row-start: 3;
   grid-column-start:2;
+  display: flex;
+  justify-content: center;
+  align-items: end;
+  
+}
+
+main #otherPlayer1Name {
+  grid-row-start: 1;
+  grid-column-start: 1;
+  display: flex;
+  justify-content: center;
+  align-items: end;
+  
+}
+main #otherPlayer2Name {
+  grid-row-start: 1;
+  grid-column-start: 3;
+  display: flex;
+  justify-content: center;
+  align-items: end;
+  
+}
+main #otherPlayer3Name {
+  grid-row-start: 3;
+  grid-column-start: 1;
   display: flex;
   justify-content: center;
   align-items: end;

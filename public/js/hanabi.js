@@ -72,6 +72,10 @@ document.addEventListener("DOMContentLoaded", function() {
     const canvasPlayer2 = document.getElementById("otherPlayer2");
     const canvasPlayer3 = document.getElementById("otherPlayer3");
 
+    const namePlayer1 = document.getElementById("otherPlayer1Name");
+    const namePlayer2 = document.getElementById("otherPlayer2Name");
+    const namePlayer3 = document.getElementById("otherPlayer3Name");
+
     const card_width = 100;
     const card_height = 140;
 
@@ -233,6 +237,9 @@ document.addEventListener("DOMContentLoaded", function() {
         canvasPlayer1.innerHTML = "";
         canvasPlayer2.innerHTML = "";
         canvasPlayer3.innerHTML = "";
+        namePlayer1.innerHTML = "";
+        namePlayer2.innerHTML = "";
+        namePlayer3.innerHTML = "";
     });
 
     // Play a card with a click on a cardstack with a card selected
@@ -299,6 +306,9 @@ document.addEventListener("DOMContentLoaded", function() {
         lobbyLog.innerHTML = "";
         btnConnecter.removeAttribute("disabled");
         username.removeAttribute("disabled");
+        namePlayer1.innerHTML = "";
+        namePlayer2.innerHTML = "";
+        namePlayer3.innerHTML = "";
         btnCommencer.setAttribute('disabled',true);
         btnCommencer.setAttribute("style","display:none");
         document.querySelectorAll(".card").forEach(element => {
@@ -425,7 +435,7 @@ function displayOwnCards(){
         let stacksDiv = document.querySelectorAll(".cardstack");
         stacks.forEach(function(stack,index){
             stack.forEach(card => {
-                stackDiv[index].appendChild(displayCard(card));
+                stacksDiv[index].appendChild(displayCard(card));
             });
         });
         
@@ -451,25 +461,31 @@ function displayOwnCards(){
                 hands[littlePlayers[0]].forEach(card => {
                     canvasPlayer1.appendChild(displayCard(card));
                 });
+                namePlayer1.innerHTML = littlePlayers[0];
                 hands[littlePlayers[1]].forEach(card => {
                     canvasPlayer2.appendChild(displayCard(card));
                 });
+                namePlayer2.innerHTML = littlePlayers[1];
                 hands[littlePlayers[2]].forEach(card => {
                     canvasPlayer3.appendChild(displayCard(card));
                 });
+                namePlayer3.innerHTML = littlePlayers[2];
                 break;
             case 2:
                 hands[littlePlayers[0]].forEach(card => {
                     canvasPlayer2.appendChild(displayCard(card));
                 });
+                namePlayer2.innerHTML = littlePlayers[0];
                 hands[littlePlayers[1]].forEach(card => {
                     canvasPlayer3.appendChild(displayCard(card));
                 });
+                namePlayer3.innerHTML = littlePlayers[1];
                 break;
             case 1:
                 hands[littlePlayers[0]].forEach(card => {
                     canvasPlayer1.appendChild(displayCard(card));
                 });
+                namePlayer1.innerHTML = littlePlayers[0];
                 break;
             default:
                 console.log("Error : hand length is not in [1,4]");
