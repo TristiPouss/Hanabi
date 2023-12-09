@@ -375,16 +375,16 @@ main #otherPlayer1Name {
   
 }
 main #otherPlayer2Name {
-  grid-row-start: 1;
-  grid-column-start: 3;
+  grid-row-start: 3;
+  grid-column-start: 1;
   display: flex;
   justify-content: center;
   align-items: end;
   
 }
 main #otherPlayer3Name {
-  grid-row-start: 3;
-  grid-column-start: 1;
+  grid-row-start: 1;
+  grid-column-start: 3;
   display: flex;
   justify-content: center;
   align-items: end;

@@ -224,6 +224,7 @@ document.addEventListener("DOMContentLoaded", function() {
             btnCommencer.setAttribute("style","display:none");
         }
         let res = JSON.parse(e);
+        
         displayPlayersHands(res.playersCards);
         displayHand(res.nb_card);
     })
@@ -512,12 +513,13 @@ function displayOwnCards(){
     }
 
     function displayPlayersHands(hands) {
+        console.log(hands);
         let littlePlayers = Object.keys(hands);
         console.log(littlePlayers);
         let nbPlayer = littlePlayers.length;
         switch (nbPlayer) {
             case 3:
-                hands[littlePlayers[0]].forEach(card => {
+                hands[(littlePlayers[0])].forEach(card => {
                     canvasPlayer1.appendChild(displayCard(card));
                 });
                 namePlayer1.innerHTML = littlePlayers[0];
