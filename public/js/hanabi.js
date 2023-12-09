@@ -395,21 +395,80 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
     /* Card display */
+    function draw_a_firework(ctx,color,sx,sy,maxDist,minDist){
+        let nbParticles = 8;
+        ctx.lineWidth = 5;
+        ctx.lineJoin = "round";
+        let dist = Math.random() * (maxDist-minDist) + minDist;
+        dist = Math.floor(dist)
+        
+        let grad;
+        let gradMarker = Math.random() * 0.5+0.1;
+       
+        for (let i = 1; i<nbParticles+1; i++){
+          let newX =Math.floor(sx + dist * Math.cos(Math.PI * (i * 45) / 180));
+          let newY = Math.floor(sy + dist * Math.sin(Math.PI * (i * 45) / 180));
+      
+          ctx.beginPath();
+      
+          ctx.moveTo(sx,sy);
+          ctx.lineTo(newX,newY)
+          ctx.closePath();
+          grad = ctx.createLinearGradient(sx,sy,newX,newY)
+          grad.addColorStop(gradMarker,"hsla(0, 0%, 0%, 0)");
+          grad.addColorStop(1,color)
+          ctx.strokeStyle = grad;
+          ctx.stroke();
+        }
+      }
+
+
     function displayCard(card) {
         let cardDiv = document.createElement("canvas");
         cardDiv.setAttribute("class", "card");
         cardDiv.setAttribute("width", card_width);
         cardDiv.setAttribute("height", card_height);
         let ctx = cardDiv.getContext("2d");
-        ctx.fillStyle = "black";
-        ctx.fillRect(0, 0, card_width, card_height);
+        let gradient = ctx.createLinearGradient(0,0,0,card_height)
+        gradient.addColorStop(0.21,"rgba(10,14,40,1)");
+        gradient.addColorStop(0.91,"rgba(31,70,124,1)")
+        gradient.addColorStop(1,"rgba(74,93,130,1)")
+        ctx.fillStyle=gradient;
+        ctx.fillRect(0,0,card_width,card_height);
         ctx.fillStyle = card.color;
         ctx.font = "30px Hanami";
         ctx.fillText(card.value, 10, 50);
 
 
         cardDiv.setAttribute("value", card.value+" "+card.color);
+        for (let i = 1; i < card.value+1; ++i){
+            let sx,sy;
+            if (i==1){
+                sx = Math.random() * card_width/2;
+                sy = Math.random() * card_height/2;
+                draw_a_firework(ctx,card.color,sx,sy,30,15);
+            }
+            if (i==2){
+                sx = Math.random() * card_width/2 + card_width/2;
+                sy = Math.random() * card_height/2 + card_height/2;
+                draw_a_firework(ctx,card.color,sx,sy,30,15);
+            }
+            if (i==3){
+                sx = Math.random() * card_width/2
+                sy = Math.random() * card_height/2 + card_height/2;
 
+                draw_a_firework(ctx,card.color,sx,sy,30,15);
+            }
+            if (i==4){
+                sx = Math.random() * card_width/2 + card_width/2;
+                sy = Math.random() * card_height/2;
+                draw_a_firework(ctx,card.color,sx,sy,30,15);
+            }
+
+            if (i==5){
+                draw_a_firework(ctx,card.color,card_width/2,card_height/2,30,15);
+            }
+        }
         cardDiv.addEventListener("click", function(e) {
             valueSelected = e.target;
             console.log("(click on " + valueSelected.getAttribute("value")  + " card)");
@@ -492,20 +551,6 @@ function displayOwnCards(){
                 break;
         }
     }
-function draw_a_firework(ctx,color){
-    let nbParticles = Math.random() * 100;
-    let center = {x:Math.random() * canvas.width, y:Math.random() * canvas.height};
-    for (let i = 0; i<nbParticles; i++){
-        ctx.beginPath();
-        let vx = Math.random() * 10 - 5;
-        let vy = Math.random() * 10 - 5;
-        ctx.arc(center.x, center.y, 10, 0, 2 * Math.PI);
-        ctx.strokeStyle = color;
-        ctx.closePath();
-        ctx.stroke();
-    }
-  }  
-//Firework animation - inspired from https://codepen.io/judag/pen/XmXMOL
 
 }); // End
 
