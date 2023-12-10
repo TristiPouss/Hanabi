@@ -84,14 +84,15 @@ class Game{
 
     give_information(player, info){
         if(this.hints > 0){
-            let hints = [];
+            let hintsValues = [];
             let cards = this.hands[player];
             for (let i = 0; i < cards.length; ++i){
                 if (cards[i].get_color() == info || cards[i].get_value() == info){
-                    hints.push(i);
+                    hintsValues.push(i);
                 }
             }
-            return hints;
+            this.hints--;
+            return hintsValues;
         }
         return false;
     }

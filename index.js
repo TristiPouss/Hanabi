@@ -261,16 +261,17 @@ io.on('connection', function (socket) {
     function checkLobby(){
         // double vérification du currentLobby
         if(currentLobby != null && currentLobby.littlePlayers.length == 0){
-            console.log("Suppresion du lobby : " + currentLobby.name);
+            console.log("Suppression du lobby : " + currentLobby.name);
             sendLogToLobby(true, "Suppresion du lobby");
             const index = lobbyArray.indexOf(currentLobby);
             if (index > -1) lobbyArray.splice(index, 1);
         }
     }
 
-    /*
-     * Gestion du jeu
-     */
+    /***************************** */
+    /*         GAME PART           */
+    /***************************** */
+
     socket.on("launchGame", function(){
         if(currentLobby != null 
         && currentLobby.owner == currentID 
@@ -290,7 +291,12 @@ io.on('connection', function (socket) {
 
     socket.on("hint", function(res){
         if(currentLobby != null){
-            game.give_information(res.idPlayer, res.value);
+            res = JSON.parse(res);
+            let resp = currentLobby.currGame.give_information(res.idPlayer, res.value);
+            if(resp){
+                sendLogToLobby(false, currentID + " a donné une information à " + res.idPlayer);
+                sendLogToLobby(false, "Les cartes " + resp + " sont " + res.value);
+            }
         }else console.log("Le client n'est pas dans un lobby");
     });
 

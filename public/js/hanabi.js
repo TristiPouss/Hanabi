@@ -4,48 +4,13 @@
 document.addEventListener("DOMContentLoaded", function() {
 
     const socket = io.connect();
+    
+    /**********************************************
+     *                                            *
+     *             Global Variables               *
+     *                                            *
+     * ********************************************/
 
-    var actionHint;
-
-    //using the popup-js library to create a popup for the hint action
-    const popup = new Popup({
-        id: "override",
-        title: "Hint Action",
-        content: `Please choose on which information you want to give an hint
-        {btn-value-hint}[Value]{btn-color-hint}[Color]`,
-        sideMargin: "1.5em",
-        fontSizeMultiplier: "1.2",
-        backgroundColor: "white",
-        allowClose: true,
-        css: `
-        .popup.override .custom-space-out {
-            display: flex;
-            font-family: "Hanami";
-            justify-content: center;
-            gap: 1.5em;
-        }`,
-        loadCallback: () => {
-            /* button functionality */
-            document.querySelector("button.value-hint").onclick =
-                () => {
-                    popup.hide();
-                    let popupNode = document.getElementsByClassName("popup")[0];
-                    popupNode.style.display="none";
-                    actionHint = "value";
-                    // user wants to use local data
-                };
-            document.querySelector("button.color-hint").onclick =
-                () => {
-                    popup.hide();
-                    let popupNode = document.getElementsByClassName("popup")[0];
-                    popupNode.style.display="none";
-                    actionHint = "color";
-                    // user wants to use cloud data
-                };
-        },
-    });
-
-    // Variables
     let id = null;
     let lobby = null;
     let isOwner = false;
@@ -79,13 +44,56 @@ document.addEventListener("DOMContentLoaded", function() {
     const card_width = 100;
     const card_height = 140;
 
-    let valueSelected = null;
+    let selectedCard = null;
 
-    /*resetHTML();
-    if(!loginPage.checked){
-        goToLogin();
-    }
-    username.focus();*/
+    let actionHint;
+
+    //using the popup-js library to create a popup for the hint action
+    const popup = new Popup({
+        id: "override",
+        title: "Hint Action",
+        content: `Please choose on which information you want to give an hint
+        {btn-value-hint}[Value]{btn-color-hint}[Color]`,
+        sideMargin: "1.5em",
+        fontSizeMultiplier: "1.2",
+        backgroundColor: "white",
+        allowClose: true,
+        css: `
+        .popup.override .custom-space-out {
+            display: flex;
+            font-family: "Hanami";
+            justify-content: center;
+            gap: 1.5em;
+        }`,
+        loadCallback: () => {
+            /* button functionality */
+            document.querySelector("button.value-hint").onclick =
+                () => {
+                    popup.hide();
+                    let popupNode = document.getElementsByClassName("popup")[0];
+                    popupNode.style.display="none";
+                    actionHint = "value";
+                    // user wants to use local data
+                    giveHint();
+                };
+            document.querySelector("button.color-hint").onclick =
+                () => {
+                    popup.hide();
+                    let popupNode = document.getElementsByClassName("popup")[0];
+                    popupNode.style.display="none";
+                    actionHint = "color";
+                    // user wants to use cloud data
+                    giveHint();
+                };
+        },
+    });
+
+
+    /************************************************
+     *                                             *
+     *              Socket Events                  *
+     *                                             *
+     * *********************************************/
 
     // Reset
     socket.on("reset", function (){
@@ -94,23 +102,6 @@ document.addEventListener("DOMContentLoaded", function() {
             goToLogin();
         }
         username.focus();
-    });
-
-    // Login
-    btnConnecter.addEventListener("click", function(e){
-        let u = checkUsername(preventInjection(username.value.trim()));
-        if(u != null && u != ""){
-            // Connection
-            socket.emit("login", u);
-            id = u;
-            // sending to main page
-            btnConnecter.setAttribute("disabled", true);
-            loginPage.checked = false;
-            lobbyListPage.checked = true;
-        }else{
-            alert("Le pseudo n'est pas valide.\nIl ne doit pas faire plus de 10 caractères de long et ne doit pas contenir de caractère spécial ou d'espace.");
-            username.value = "";
-        }
     });
 
     // Lobby list reception
@@ -188,6 +179,57 @@ document.addEventListener("DOMContentLoaded", function() {
         goToLobby();
     });
 
+    // On game launch response from server - display first hands
+    socket.on("launchGame",function(e){ 
+        if(isOwner){
+            btnCommencer.setAttribute('disabled',true);
+            btnCommencer.setAttribute("style","display:none");
+        }
+        let res = JSON.parse(e);
+        
+        displayPlayersHands(res.playersCards);
+        displayHand(res.nb_card);
+    })
+
+    
+    socket.on("resetGame", function(){
+        if(isOwner){
+            btnCommencer.removeAttribute('disabled');
+            btnCommencer.setAttribute("style","display:block");
+        }
+        canvasHand.innerHTML = "";
+        canvasPlayer1.innerHTML = "";
+        canvasPlayer2.innerHTML = "";
+        canvasPlayer3.innerHTML = "";
+        namePlayer1.innerHTML = "";
+        namePlayer2.innerHTML = "";
+        namePlayer3.innerHTML = "";
+    });
+
+    
+    /************************************************
+     *                                             *
+     *             Event Listeners                 *
+     *                                             *
+     * *********************************************/
+
+    // Login
+    btnConnecter.addEventListener("click", function(e){
+        let u = checkUsername(preventInjection(username.value.trim()));
+        if(u != null && u != ""){
+            // Connection
+            socket.emit("login", u);
+            id = u;
+            // sending to main page
+            btnConnecter.setAttribute("disabled", true);
+            loginPage.checked = false;
+            lobbyListPage.checked = true;
+        }else{
+            alert("Le pseudo n'est pas valide.\nIl ne doit pas faire plus de 10 caractères de long et ne doit pas contenir de caractère spécial ou d'espace.");
+            username.value = "";
+        }
+    });
+
     // Create lobby
     btnCreer.addEventListener("click", function() {
         let name = checkLobbyName(preventInjection(lobbyName.value.trim()));
@@ -217,40 +259,15 @@ document.addEventListener("DOMContentLoaded", function() {
         socket.emit("launchGame");
     });
 
-    // On game launch response from server - display first hands
-    socket.on("launchGame",function(e){ 
-        if(isOwner){
-            btnCommencer.setAttribute('disabled',true);
-            btnCommencer.setAttribute("style","display:none");
-        }
-        let res = JSON.parse(e);
-        
-        displayPlayersHands(res.playersCards);
-        displayHand(res.nb_card);
-    })
-
-    socket.on("resetGame", function(){
-        if(isOwner){
-            btnCommencer.removeAttribute('disabled');
-            btnCommencer.setAttribute("style","display:block");
-        }
-        canvasHand.innerHTML = "";
-        canvasPlayer1.innerHTML = "";
-        canvasPlayer2.innerHTML = "";
-        canvasPlayer3.innerHTML = "";
-        namePlayer1.innerHTML = "";
-        namePlayer2.innerHTML = "";
-        namePlayer3.innerHTML = "";
-    });
 
     // Play a card with a click on a cardstack with a card selected
     let cardstacks = document.querySelectorAll(".cardstack");
     cardstacks.forEach(stack => {
         stack.addEventListener("click", function(e){
-            if(valueSelected != null && valueSelected.parentNode == canvasHand){
-                let res = {indexCard: Array.prototype.indexOf.call(canvasHand.children, valueSelected),indexStack: Array.prototype.indexOf.call(cardstacks, e.target)};
+            if(selectedCard != null && selectedCard.parentNode == canvasHand){
+                let res = {indexCard: Array.prototype.indexOf.call(canvasHand.children, selectedCard),indexStack: Array.prototype.indexOf.call(cardstacks, e.target)};
                 socket.emit("playCard", JSON.stringify(res));
-                valueSelected = null;
+                selectedCard = null;
             }
         });
     });
@@ -258,10 +275,10 @@ document.addEventListener("DOMContentLoaded", function() {
     // Discard a card with a click on a cardstack with a card selected
     let discard = document.getElementById("btnDefausser");
     discard.addEventListener("click", function(e){
-        if(valueSelected != null && valueSelected.parentNode == canvasHand){
-            let res = {indexCard: Array.prototype.indexOf.call(canvasHand.children, valueSelected)};
+        if(selectedCard != null && selectedCard.parentNode == canvasHand){
+            let res = {indexCard: Array.prototype.indexOf.call(canvasHand.children, selectedCard)};
             socket.emit("discard", JSON.stringify(res));
-            valueSelected = null;
+            selectedCard = null;
         }
     });
 
@@ -271,50 +288,25 @@ document.addEventListener("DOMContentLoaded", function() {
         let popupNode = document.getElementsByClassName("popup")[0];
         popupNode.style.display="block";
         popup.show();
-        while(actionHint == null){
-            if (selectedCard != null && selectedCard.parentNode != canvasHand){
-                let hint_value = null;
-                if (actionHint == "value"){
-                    hint_value = selectedCard.getAttribute("value").split(" ")[0];
-                } else if (actionHint == "color"){
-                    hint_value = selectedCard.getAttribute("value").split(" ")[1];   
-                }
-                let res = {idPlayer:"GEEEEEEEEEEE", value: hint_value};
-                socket.emit("hint", JSON.stringify(res));
-                selectedCard = null;
-            } else {
-                alert("Please select a card");
-            }
-        }
+        
     });
 
-    
-    /*** Misc ***/
-
-    function reset(){
-        id = null;
-        lobby = null;
-        isOwner = false;
-        userArray = [];
-        lobbyArray = [];
-        valueSelected = null;
-        resetHTML();
-    }
-
-    function resetHTML(){
-        username.value = "";
-        lobbyName.value = "";
-        lobbyLog.innerHTML = "";
-        btnConnecter.removeAttribute("disabled");
-        username.removeAttribute("disabled");
-        namePlayer1.innerHTML = "";
-        namePlayer2.innerHTML = "";
-        namePlayer3.innerHTML = "";
-        btnCommencer.setAttribute('disabled',true);
-        btnCommencer.setAttribute("style","display:none");
-        document.querySelectorAll(".card").forEach(element => {
-            element.remove();
-        });
+    // Send a hint with a click on a cardstack with a card selected
+    function giveHint(e){
+        if (selectedCard != null && selectedCard.parentNode != canvasHand){
+            let hint_value = null;
+            if (actionHint == "value"){
+                hint_value = selectedCard.getAttribute("value").split(" ")[0];
+            } else if (actionHint == "color"){
+                hint_value = selectedCard.getAttribute("value").split(" ")[1];   
+            }
+            let idOwner = selectedCard.parentNode.getAttribute("owner");
+            let res = {idPlayer:idOwner, value: hint_value};
+            socket.emit("hint", JSON.stringify(res));
+            selectedCard = null;
+        } else {
+            alert("Please select a card");
+        }
     }
 
     document.addEventListener("keypress", function(e){
@@ -327,9 +319,49 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     })
 
+    // Open the rules in a new tab
     document.getElementById("btnAide").addEventListener("click", function(){
         window.open("https://www.ludicbox.fr/ressources/9088-regle-du-jeu-Hanabi.pdf", "_blank").focus();
     });
+
+
+    /************************************************
+     *                                              *
+     *               Misc. Functions                *
+     *                                              *
+     * *********************************************/
+ 
+
+    function reset(){
+        id = null;
+        lobby = null;
+        isOwner = false;
+        userArray = [];
+        lobbyArray = [];
+        selectedCard = null;
+        resetHTML();
+    }
+
+    function resetHTML(){
+        username.value = "";
+        lobbyName.value = "";
+        lobbyLog.innerHTML = "";
+        btnConnecter.removeAttribute("disabled");
+        username.removeAttribute("disabled");
+        
+        namePlayer1.innerHTML = "";
+        namePlayer2.innerHTML = "";
+        namePlayer3.innerHTML = "";
+        canvasPlayer1.innerHTML = "";
+        canvasPlayer2.innerHTML = "";
+        canvasPlayer3.innerHTML = "";
+
+        btnCommencer.setAttribute('disabled',true);
+        btnCommencer.setAttribute("style","display:none");
+        document.querySelectorAll(".card").forEach(element => {
+            element.remove();
+        });
+    }
 
 
     function goToLobby(){
@@ -394,8 +426,11 @@ document.addEventListener("DOMContentLoaded", function() {
         return str.replace(/\</g,"&lt;").replace(/\>/g, "&gt;"); 
     }
 
+    /***************************************************************************************/
+    /*                                   Card display                                      */
+    /***************************************************************************************/
 
-    /* Card display */
+
     function draw_a_firework(ctx,color,sx,sy,maxDist,minDist){
         let nbParticles = 8;
         ctx.lineWidth = 5;
@@ -471,25 +506,25 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
         cardDiv.addEventListener("click", function(e) {
-            valueSelected = e.target;
-            console.log("(click on " + valueSelected.getAttribute("value")  + " card)");
+            selectedCard = e.target;
+            console.log("(click on " + selectedCard.getAttribute("value")  + " card)");
         }
         );
 
         return cardDiv;
     }
 
-function displayOwnCards(){
-    let cardDiv = document.createElement("canvas");
-        cardDiv.setAttribute("class", "card");
-        cardDiv.setAttribute("width", card_width);
-        cardDiv.setAttribute("height", card_height);
-        let ctx = cardDiv.getContext("2d");
-        ctx.fillStyle = "grey";
-        ctx.fillRect(0, 0, card_width, card_height);       
+    function displayOwnCards(){
+        let cardDiv = document.createElement("canvas");
+            cardDiv.setAttribute("class", "card");
+            cardDiv.setAttribute("width", card_width);
+            cardDiv.setAttribute("height", card_height);
+            let ctx = cardDiv.getContext("2d");
+            ctx.fillStyle = "grey";
+            ctx.fillRect(0, 0, card_width, card_height);       
 
-        return cardDiv;
-}
+            return cardDiv;
+    }
 
     function displayStacks(stacks) {
         let stacksDiv = document.querySelectorAll(".cardstack");
@@ -505,8 +540,8 @@ function displayOwnCards(){
         for(let i = 0;i<numberCards;i++){
             let cardDiv = displayOwnCards();
             cardDiv.addEventListener("click", function(e) {
-                valueSelected = e.target;
-                console.log("(click on " + valueSelected  + " card)");
+                selectedCard = e.target;
+                console.log("(click on " + selectedCard  + " card)");
             });
             canvasHand.appendChild(cardDiv);
         }
@@ -522,30 +557,37 @@ function displayOwnCards(){
                 hands[(littlePlayers[0])].forEach(card => {
                     canvasPlayer1.appendChild(displayCard(card));
                 });
+                canvasPlayer1.setAttribute("owner",littlePlayers[0]);
                 namePlayer1.innerHTML = littlePlayers[0];
                 hands[littlePlayers[1]].forEach(card => {
                     canvasPlayer2.appendChild(displayCard(card));
                 });
+                canvasPlayer2.setAttribute("owner",littlePlayers[1]);
                 namePlayer2.innerHTML = littlePlayers[1];
                 hands[littlePlayers[2]].forEach(card => {
                     canvasPlayer3.appendChild(displayCard(card));
                 });
+                canvasPlayer3.setAttribute("owner",littlePlayers[2]);
                 namePlayer3.innerHTML = littlePlayers[2];
                 break;
             case 2:
+
                 hands[littlePlayers[0]].forEach(card => {
                     canvasPlayer2.appendChild(displayCard(card));
                 });
+                canvasPlayer2.setAttribute("owner",littlePlayers[0]);
                 namePlayer2.innerHTML = littlePlayers[0];
                 hands[littlePlayers[1]].forEach(card => {
                     canvasPlayer3.appendChild(displayCard(card));
                 });
+                canvasPlayer3.setAttribute("owner",littlePlayers[1]);
                 namePlayer3.innerHTML = littlePlayers[1];
                 break;
             case 1:
                 hands[littlePlayers[0]].forEach(card => {
                     canvasPlayer1.appendChild(displayCard(card));
                 });
+                canvasPlayer1.setAttribute("owner",littlePlayers[0]);
                 namePlayer1.innerHTML = littlePlayers[0];
                 break;
             default:
