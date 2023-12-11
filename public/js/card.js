@@ -104,6 +104,7 @@ class Game{
             this.hands[player].splice(this.hands[player].indexOf(card), 1);
             this.hands[player].push(this.deck.cards.pop());
             this.hints++;
+            return true;
         } else {
             return false;
         }

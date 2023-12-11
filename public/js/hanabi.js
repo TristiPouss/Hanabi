@@ -230,7 +230,7 @@ document.addEventListener("DOMContentLoaded", function() {
         wrongAction.innerHTML = res;
         setTimeout(function(){
             wrongAction.innerHTML = "";
-        },10000);
+        },5000);
 
     });
     
