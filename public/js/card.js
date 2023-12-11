@@ -98,12 +98,14 @@ class Game{
     }
 
     discard_card(player, indexCard){
-        let card = this.hands[player][indexCard];
-        this.discard.push(card);
-        this.hands[player].splice(this.hands[player].indexOf(card), 1);
-        this.hands[player].push(this.deck.cards.pop());
         if (this.hints < 8){
+            let card = this.hands[player][indexCard];
+            this.discard.push(card);
+            this.hands[player].splice(this.hands[player].indexOf(card), 1);
+            this.hands[player].push(this.deck.cards.pop());
             this.hints++;
+        } else {
+            return false;
         }
     }
 

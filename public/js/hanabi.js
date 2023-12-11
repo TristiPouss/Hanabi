@@ -19,6 +19,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     const username = document.getElementById("pseudo");
     const lobbyName = document.getElementById("lobbyName");
+    const wrongAction = document.getElementById("wrongAction");
 
     const btnConnecter = document.getElementById("btnConnecter");
     const btnCreer = document.getElementById("btnCreer");
@@ -189,9 +190,28 @@ document.addEventListener("DOMContentLoaded", function() {
         
         displayPlayersHands(res.playersCards);
         displayHand(res.nb_card);
+        document.querySelector("#nbHints").innerHTML  = "Number of hints : " + res.nb_hints;
     })
 
+    socket.on("updateGame",function(e){
+        let res = JSON.parse(e);
+
+        canvasHand.innerHTML = "";
+        canvasPlayer1.innerHTML = "";
+        canvasPlayer2.innerHTML = "";
+        canvasPlayer3.innerHTML = "";
+        console.log(res);
+        displayPlayersHands(res.playersCards);
+        //displayStacks(res.stacks);
+        displayHand(res.nb_card);
+        document.querySelector("#nbHints").innerHTML  = "Number of hints : " + res.nb_hints;
+    });
     
+    socket.on("updateHints",function(e){
+        let res = JSON.parse(e);
+        document.querySelector("#nbHints").innerHTML  = "Number of hints : " + res.nb_hints;
+    });
+
     socket.on("resetGame", function(){
         if(isOwner){
             btnCommencer.removeAttribute('disabled');
@@ -206,6 +226,13 @@ document.addEventListener("DOMContentLoaded", function() {
         namePlayer3.innerHTML = "";
     });
 
+    socket.on("wrongAction", function(res){
+        wrongAction.innerHTML = res;
+        setTimeout(function(){
+            wrongAction.innerHTML = "";
+        },10000);
+
+    });
     
     /************************************************
      *                                             *
@@ -278,6 +305,7 @@ document.addEventListener("DOMContentLoaded", function() {
         if(selectedCard != null && selectedCard.parentNode == canvasHand){
             let res = {indexCard: Array.prototype.indexOf.call(canvasHand.children, selectedCard)};
             socket.emit("discard", JSON.stringify(res));
+            selectedCard.classList.remove('selectedCard');
             selectedCard = null;
         }
     });
@@ -303,6 +331,7 @@ document.addEventListener("DOMContentLoaded", function() {
             let idOwner = selectedCard.parentNode.getAttribute("owner");
             let res = {idPlayer:idOwner, value: hint_value};
             socket.emit("hint", JSON.stringify(res));
+            selectedCard.classList.remove('selectedCard');
             selectedCard = null;
         } else {
             alert("Please select a card");
@@ -506,8 +535,11 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
         cardDiv.addEventListener("click", function(e) {
+            if (selectedCard != null){
+                selectedCard.classList.remove('selectedCard');
+            }
             selectedCard = e.target;
-            console.log("(click on " + selectedCard.getAttribute("value")  + " card)");
+            selectedCard.classList.add('selectedCard');
         }
         );
 
@@ -522,7 +554,13 @@ document.addEventListener("DOMContentLoaded", function() {
             let ctx = cardDiv.getContext("2d");
             ctx.fillStyle = "grey";
             ctx.fillRect(0, 0, card_width, card_height);       
-
+            cardDiv.addEventListener("click", function(e) {
+                if (selectedCard != null){
+                    selectedCard.classList.remove('selectedCard');
+                }
+                selectedCard = e.target;
+                selectedCard.classList.add('selectedCard');
+            });
             return cardDiv;
     }
 
@@ -539,18 +577,14 @@ document.addEventListener("DOMContentLoaded", function() {
     function displayHand(numberCards) {
         for(let i = 0;i<numberCards;i++){
             let cardDiv = displayOwnCards();
-            cardDiv.addEventListener("click", function(e) {
-                selectedCard = e.target;
-                console.log("(click on " + selectedCard  + " card)");
-            });
             canvasHand.appendChild(cardDiv);
         }
     }
 
     function displayPlayersHands(hands) {
-        console.log(hands);
+        
         let littlePlayers = Object.keys(hands);
-        console.log(littlePlayers);
+       
         let nbPlayer = littlePlayers.length;
         switch (nbPlayer) {
             case 3:

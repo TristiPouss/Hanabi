@@ -417,6 +417,14 @@ main #playBtns {
   box-shadow: inset 0 10px 30px 5px rgba(0, 0, 0, 0.2);
 }
 
+#discard {
+    height: 140px;
+    width: 100px;
+    margin: 90px 10px;
+    border-radius: 10px;
+    box-shadow: inset 0 10px 30px 5px rgba(0, 0, 0, 0.2);
+}
+
 .cardstack:hover {
   box-shadow: 0 10px 30px 5px rgba(188, 219, 12, 1);
 }
@@ -429,10 +437,10 @@ main #playBtns {
   display: flex;
     height: 140px;
     width: 100px;
-    background-color: yellow;
     border-radius: 10px;
     box-shadow: 0 10px 30px 5px rgba(0, 0, 0, 0.2);
 }
+
 
 #myCards .card {
   /*   margin-left: -50px; */
@@ -446,12 +454,12 @@ main #playBtns {
       margin-left: -50px;
   }
   
-  #myCards .card:hover {
+  #myCards .card:hover, #myCards .card.selectedCard {
     transform: translateY(-20px);
     transition: 0.4s ease-out;
   }
   
-  #myCards .card:hover ~ .card {
+  #myCards .card:hover ~ .card, #myCards .card.selectedCard ~ .card{
     position: relative;
     left: 50px;
     transition: 0.4s ease-out;
@@ -468,12 +476,12 @@ main #playBtns {
       margin-right: -50px;
   }
   
-  #otherPlayer1 .card:hover {
+  #otherPlayer1 .card:hover , #otherPlayer1 .card.selectedCard{
     transform: translateY(20px);
     transition: 0.4s ease-out;
   }
   
-  #otherPlayer1 .card:hover ~ .card {
+  #otherPlayer1 .card:hover ~ .card , #otherPlayer1 .card.selectedCard ~ .card{
     position: relative;
     right: 50px;
     transition: 0.4s ease-out;
@@ -494,12 +502,12 @@ main #playBtns {
       margin-top: -100px;
   }
   
-  #otherPlayer2 .card:hover {
+  #otherPlayer2 .card:hover , #otherPlayer2 .card.selectedCard{
     transform: translateY(-20px);
     transition: 0.4s ease-out;
   }
   
-  #otherPlayer2 .card:hover ~ .card {
+  #otherPlayer2 .card:hover ~ .card , #otherPlayer2 .card.selectedCard ~ .card{
     position: relative;
     transition: 0.4s ease-out;
     top: 60px;
@@ -519,12 +527,12 @@ main #playBtns {
       margin-top: -100px;
   }
   
-  #otherPlayer3 .card:hover {
+  #otherPlayer3 .card:hover , #otherPlayer3 .card.selectedCard{
     transform: translateY(-20px);
     transition: 0.4s ease-out;
   }
   
-  #otherPlayer3 .card:hover ~ .card {
+  #otherPlayer3 .card:hover ~ .card , #otherPlayer3 .card.selectedCard ~ .card{
     position: relative;
     top: 60px;
     transition: 0.4s ease-out;
@@ -688,9 +696,37 @@ input[type=button] {
   font-size: 64px;
   color:#ffffff;
   font-weight: bolder;
-  padding:auto;
   border:none;
   transition: 0.4s ease-out;
+}
+#content > footer {
+  display: flex;
+  justify-content: space-between;
+}
+
+#wrongAction {
+  font-family: "Hanami";
+  text-shadow: #000 2px 2px 2px;
+  color: red;
+  font-size: 20px;
+  font-weight: bolder;
+  animation: opacityIn 2s ease-out;
+}
+
+#nbHints {
+  font-family: "Hanami";
+  text-shadow: #000 2px 2px 2px;
+  color: blue;
+  font-size: 20px;
+  font-weight: bolder;
+}
+
+#nbFails {
+  font-family: "Hanami";
+  text-shadow: #000 2px 2px 2px;
+  color: red;
+  font-size: 20px;
+  font-weight: bolder;
 }
 
 

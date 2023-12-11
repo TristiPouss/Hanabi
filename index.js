@@ -9,6 +9,7 @@ const server = app.listen(port, function() {
 
 // Ecoute sur les websockets
 const { Server } = require("socket.io");
+const e = require('express');
 const io = new Server(server);
 
 // Configuration d'express pour utiliser le répertoire "public"
@@ -96,6 +97,7 @@ class GameData {
         this.nb_card = Lobby.currGame.hands[Player].length;
         this.nb_hints = Lobby.currGame.hints;
         this.nb_fails = Lobby.currGame.fails
+        this.stacks = Lobby.currGame.stacks;
         Object.keys(Lobby.currGame.hands).forEach(clientName => {
             if (clientName != Player){
                 this.playersCards[clientName] = Lobby.currGame.hands[clientName];
@@ -273,8 +275,8 @@ io.on('connection', function (socket) {
     /***************************** */
 
     socket.on("launchGame", function(){
-        if(currentLobby != null 
-        && currentLobby.owner == currentID 
+        if(currentLobby != null
+        && currentLobby.owner == currentID
         && currentLobby.currGame == null
         && currentLobby.littlePlayers.length > 1){
             currentLobby.launchGame();
@@ -296,19 +298,30 @@ io.on('connection', function (socket) {
             if(resp){
                 sendLogToLobby(false, currentID + " a donné une information à " + res.idPlayer);
                 sendLogToLobby(false, "Les cartes " + resp + " sont " + res.value);
-            }
+                let respHint = {nb_hints : currentLobby.currGame.hints}
+                respHint = JSON.stringify(respHint);
+                currentLobby.getClients().forEach(client => {
+                    clients[client].emit("updateHints", respHint);
+                });
+            } else clients[currentID].emit("wrongAction", "Impossible de donner une information");
+
         }else console.log("Le client n'est pas dans un lobby");
     });
 
     socket.on("discard", function(res){
         if(currentLobby != null){
-            game.discard_card(currentID, res.indexCard);
+            if (currentLobby.currGame.discard_card(currentID, res.indexCard)){;
+                currentLobby.getClients().forEach(client => {
+                    let data = new GameData(currentLobby,client);
+                    clients[client].emit("updateGame", JSON.stringify(data))
+                });
+            } else clients[currentID].emit("wrongAction", "Impossible de defausser la carte");
         }else{console.log("Le client n'est pas dans un lobby");}
     });
 
     socket.on("play", function(res){
         if(currentLobby != null){
-            game.play_card(currentID, res.indexCard, res.indexStack)
+            currentLobby.currGame.play_card(currentID, res.indexCard, res.indexStack)
         }else console.log("Le client n'est pas dans un lobby");
     });
 });
