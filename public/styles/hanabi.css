@@ -490,7 +490,7 @@ main #playBtns {
 }
 
 #otherPlayer1 .card:not(:first-child) {
-    margin-right: -50px;
+    margin-right: -150px;
 }
 
 #otherPlayer1 .card:hover , #otherPlayer1 .card.selectedCard{
@@ -500,7 +500,7 @@ main #playBtns {
 
 #otherPlayer1 .card:hover ~ .card , #otherPlayer1 .card.selectedCard ~ .card{
   position: relative;
-  right: 50px;
+  right: -50px;
   transition: 0.4s ease-out;
 }
 
@@ -541,7 +541,7 @@ main #playBtns {
 }
 
 #otherPlayer3 .card:not(:first-child) {
-    margin-top: -100px;
+    margin-top: -175px;
 }
 
 #otherPlayer3 .card:hover , #otherPlayer3 .card.selectedCard{
@@ -551,7 +551,7 @@ main #playBtns {
 
 #otherPlayer3 .card:hover ~ .card , #otherPlayer3 .card.selectedCard ~ .card{
   position: relative;
-  top: 60px;
+  top: -40px;
   transition: 0.4s ease-out;
 }
   
@@ -688,7 +688,7 @@ a {
   text-decoration: none;
 }
 
-#btns, #playBtns{
+#btns {
   position: absolute;
   right: 0%;
   top:0%;
@@ -718,13 +718,12 @@ input[type=button] {
 }
 
 #playBtns > * {
-  margin: auto;
+  margin-right: 15px;
   display:block;
   font-family: "Hanami";
   text-shadow: #000 2px 2px 2px;
   height: 100px;
-  padding-left: 20px;
-  font-size: 16px;
+  font-size: 20px;
   color:#ffffff;
   font-weight: bolder;
   border:none;
@@ -765,10 +764,14 @@ input[type=button] {
   color: rgb(6, 179, 6);
 }
 
-#btnQuitter:hover {
+#btnQuitter:hover, #btnDefausser:hover {
   color: rgb(248, 53, 53);
 }
 
 #btnAide:hover {
   color: rgb(0, 217, 255);
+}
+
+#btnHint:hover {
+  color:rgb(236, 244, 0)
 }

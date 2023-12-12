@@ -98,6 +98,7 @@ class GameData {
         this.nb_hints = Lobby.currGame.hints;
         this.nb_fails = Lobby.currGame.fails
         this.stacks = Lobby.currGame.stacks;
+        this.round = 0;
         Object.keys(Lobby.currGame.hands).forEach(clientName => {
             if (clientName != Player){
                 this.playersCards[clientName] = Lobby.currGame.hands[clientName];
@@ -179,7 +180,10 @@ io.on('connection', function (socket) {
             sendLogToLobby(true, currentID + " a rejoint le lobby.");
             // envoi de la nouvelle liste de lobby à tous les clients connectés
             io.sockets.emit("listLobby", JSON.stringify(lobbyArray));
-        }else console.log("Le client n'est pas dans un lobby");
+        }else {
+            console.log("Le client n'est pas dans un lobby");
+            socket.emit("reset");
+        }
     });
 
     /**
@@ -196,7 +200,10 @@ io.on('connection', function (socket) {
             checkLobby(); // supprime le lobby si il est vide
             // envoi de la nouvelle liste de lobby à tous les clients connectés
             io.sockets.emit("listLobby", JSON.stringify(lobbyArray));
-        }else console.log("Le client n'est pas dans un lobby");
+        }else {
+            console.log("Le client n'est pas dans un lobby");
+            socket.emit("reset");
+        }
     });
 
 

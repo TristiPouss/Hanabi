@@ -44,6 +44,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     const card_width = 100;
     const card_height = 140;
+    let round = null;
 
     let selectedCard = null;
 
@@ -205,6 +206,7 @@ document.addEventListener("DOMContentLoaded", function() {
         //displayStacks(res.stacks);
         displayHand(res.nb_card);
         document.querySelector("#nbHints").innerHTML  = "Indices restants : " + res.nb_hints;
+        round = res.round;
     });
     
     socket.on("updateHints",function(e){
@@ -530,12 +532,10 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
 
-        ctx.fillStyle = card.color;
-        ctx.shadowColor = "black";
-        ctx.shadowBlur = 10;
-        ctx.shadowOffsetX = 2;
-        ctx.shadowOffsetY = 2;
         ctx.font = "30px Rei";
+        ctx.strokeStyle = "rgba(0,0,0,0.5)";
+        ctx.strokeText(card.value, 10, 50);
+        ctx.fillStyle = card.color;
         ctx.fillText(card.value, 10, 50);
         cardDiv.setAttribute("value", card.value+" "+card.color);
 
@@ -543,8 +543,13 @@ document.addEventListener("DOMContentLoaded", function() {
             if (selectedCard != null){
                 selectedCard.classList.remove('selectedCard');
             }
-            selectedCard = e.target;
-            selectedCard.classList.add('selectedCard');
+            if(e.target == selectedCard){
+                selectedCard.classList.remove('selectedCard');
+                selectedCard = null;
+            } else {
+                selectedCard = e.target;
+                selectedCard.classList.add('selectedCard');
+            }
         }
         );
 

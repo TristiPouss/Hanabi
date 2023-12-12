@@ -60,6 +60,7 @@ class Deck {
         }
     }
 }
+
 class Game{
     constructor(players_list){
         this.deck = new Deck();
