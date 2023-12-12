@@ -88,7 +88,7 @@ class Game{
             let cards = this.hands[player];
             for (let i = 0; i < cards.length; ++i){
                 if (cards[i].get_color() == info || cards[i].get_value() == info){
-                    hintsValues.push(i);
+                    hintsValues.push(i+1);
                 }
             }
             this.hints--;
@@ -114,16 +114,6 @@ class Game{
 
         let stack = this.stacks[indexStack];
         let card = this.hands[player][indexCard];
-        /* for (let i = 0; i < this.stacks.length; ++i){
-            if (this.stacks[i][0] != undefined && this.stacks[i][0].get_color() == card.get_color()){
-                stack = this.stacks[i];
-                break;
-            }
-            if (this.stacks[i][0] == undefined){
-                stack = this.stacks[i];
-                break;
-            }
-        } */
         if (stack[0] == undefined && card.get_value() != 1){
             this.discard_card(player, card);
             this.fails++;

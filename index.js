@@ -264,12 +264,28 @@ io.on('connection', function (socket) {
         // double vérification du currentLobby
         if(currentLobby != null && currentLobby.littlePlayers.length == 0){
             console.log("Suppression du lobby : " + currentLobby.name);
-            sendLogToLobby(true, "Suppresion du lobby");
+            sendLogToLobby(true, "Suppression du lobby");
             const index = lobbyArray.indexOf(currentLobby);
             if (index > -1) lobbyArray.splice(index, 1);
         }
     }
 
+    function traductionColor(color){
+        switch(color){
+            case "red":
+                return "rouge";
+            case "blue":
+                return "bleue";
+            case "green":
+                return "verte";
+            case "white":
+                return "blanche";
+            case "yellow":
+                return "jaune";
+            default:
+                return color;
+        }
+    }
     /***************************** */
     /*         GAME PART           */
     /***************************** */
@@ -297,6 +313,7 @@ io.on('connection', function (socket) {
             let resp = currentLobby.currGame.give_information(res.idPlayer, res.value);
             if(resp){
                 sendLogToLobby(false, currentID + " a donné une information à " + res.idPlayer);
+                if (res.value == "color") res.value = traductionColor(res.value);
                 sendLogToLobby(false, "Les cartes " + resp + " sont " + res.value);
                 let respHint = {nb_hints : currentLobby.currGame.hints}
                 respHint = JSON.stringify(respHint);

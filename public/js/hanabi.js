@@ -52,9 +52,9 @@ document.addEventListener("DOMContentLoaded", function() {
     //using the popup-js library to create a popup for the hint action
     const popup = new Popup({
         id: "override",
-        title: "Hint Action",
-        content: `Please choose on which information you want to give an hint
-        {btn-value-hint}[Value]{btn-color-hint}[Color]`,
+        title: "Donner un indice",
+        content: `Choisissez l'information de la carte sélectionnée à indiquer :,
+        {btn-value-hint}[Valeur]{btn-color-hint}[Couleur]`,
         sideMargin: "1.5em",
         fontSizeMultiplier: "1.2",
         backgroundColor: "white",
@@ -334,7 +334,7 @@ document.addEventListener("DOMContentLoaded", function() {
             selectedCard.classList.remove('selectedCard');
             selectedCard = null;
         } else {
-            alert("Please select a card");
+            alert("Veuillez sélectionner une carte");
         }
     }
 
@@ -535,7 +535,7 @@ document.addEventListener("DOMContentLoaded", function() {
         ctx.shadowBlur = 10;
         ctx.shadowOffsetX = 2;
         ctx.shadowOffsetY = 2;
-        ctx.font = "30px Hanami";
+        ctx.font = "30px Rei";
         ctx.fillText(card.value, 10, 50);
         cardDiv.setAttribute("value", card.value+" "+card.color);
 
@@ -573,7 +573,7 @@ document.addEventListener("DOMContentLoaded", function() {
         let stacksDiv = document.querySelectorAll(".cardstack");
         stacks.forEach(function(stack,index){
             stack.forEach(card => {
-                stacksDiv[index].appendChild(displayCard(card));
+                if (card!=undefined) stacksDiv[index].appendChild(displayCard(card));
             });
         });
         
