@@ -421,6 +421,7 @@ main #playBtns {
     height: 140px;
     width: 100px;
     margin: 90px 10px;
+    padding: auto 0px;
     border-radius: 10px;
     box-shadow: inset 0 10px 30px 5px rgba(0, 0, 0, 0.2);
 }

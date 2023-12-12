@@ -88,7 +88,7 @@ class Game{
             let cards = this.hands[player];
             for (let i = 0; i < cards.length; ++i){
                 if (cards[i].get_color() == info || cards[i].get_value() == info){
-                    hintsValues.push(i);
+                    hintsValues.push(i+1);
                 }
             }
             this.hints--;
