@@ -291,7 +291,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Play a card with a click on a cardstack with a card selected
     let cardstacks = document.querySelectorAll(".cardstack");
-    cardstacks.forEach(stack,index => {
+    cardstacks.forEach(stack => {
         stack.addEventListener("click", function(e){
             console.log(e.target)
             if(selectedCard != null && selectedCard.parentNode == canvasHand){
