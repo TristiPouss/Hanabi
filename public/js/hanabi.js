@@ -154,7 +154,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 // Add message to the chat log
                 lobbyLog.innerHTML += "<p "+color+">" +   // Start + Color
                                 time + " - " +        // Timestamp
-                                (msg.isLobby ? "[lobby]" : "[game]") +         // Lobby or game info
+                                (msg.isLobby ? "[LOBBY]" : "[JEU]") +         // Lobby or game info
                                 " : " + msg.text +    // Main text
                                 "</p>";               // End
         
@@ -190,7 +190,7 @@ document.addEventListener("DOMContentLoaded", function() {
         
         displayPlayersHands(res.playersCards);
         displayHand(res.nb_card);
-        document.querySelector("#nbHints").innerHTML  = "Number of hints : " + res.nb_hints;
+        document.querySelector("#nbHints").innerHTML  = "Indices restants : " + res.nb_hints;
     })
 
     socket.on("updateGame",function(e){
@@ -204,12 +204,12 @@ document.addEventListener("DOMContentLoaded", function() {
         displayPlayersHands(res.playersCards);
         //displayStacks(res.stacks);
         displayHand(res.nb_card);
-        document.querySelector("#nbHints").innerHTML  = "Number of hints : " + res.nb_hints;
+        document.querySelector("#nbHints").innerHTML  = "Indices restants : " + res.nb_hints;
     });
     
     socket.on("updateHints",function(e){
         let res = JSON.parse(e);
-        document.querySelector("#nbHints").innerHTML  = "Number of hints : " + res.nb_hints;
+        document.querySelector("#nbHints").innerHTML  = "Indices restants : " + res.nb_hints;
     });
 
     socket.on("resetGame", function(){
@@ -500,12 +500,7 @@ document.addEventListener("DOMContentLoaded", function() {
         gradient.addColorStop(1,"rgba(74,93,130,1)")
         ctx.fillStyle=gradient;
         ctx.fillRect(0,0,card_width,card_height);
-        ctx.fillStyle = card.color;
-        ctx.font = "30px Hanami";
-        ctx.fillText(card.value, 10, 50);
 
-
-        cardDiv.setAttribute("value", card.value+" "+card.color);
         for (let i = 1; i < card.value+1; ++i){
             let sx,sy;
             if (i==1){
@@ -534,6 +529,16 @@ document.addEventListener("DOMContentLoaded", function() {
                 draw_a_firework(ctx,card.color,card_width/2,card_height/2,30,15);
             }
         }
+
+        ctx.fillStyle = card.color;
+        ctx.shadowColor = "black";
+        ctx.shadowBlur = 10;
+        ctx.shadowOffsetX = 2;
+        ctx.shadowOffsetY = 2;
+        ctx.font = "30px Hanami";
+        ctx.fillText(card.value, 10, 50);
+        cardDiv.setAttribute("value", card.value+" "+card.color);
+
         cardDiv.addEventListener("click", function(e) {
             if (selectedCard != null){
                 selectedCard.classList.remove('selectedCard');

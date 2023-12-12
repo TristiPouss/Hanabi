@@ -716,7 +716,7 @@ input[type=button] {
 #nbHints {
   font-family: "Hanami";
   text-shadow: #000 2px 2px 2px;
-  color: blue;
+  color: white;
   font-size: 20px;
   font-weight: bolder;
 }
@@ -739,4 +739,23 @@ input[type=button] {
 }
 #btnAide:hover {
   color: rgb(0, 217, 255);
+}
+
+#btnHint #btnDefausser{
+  background-color: white;
+  font-family: "Hanami";
+}
+
+#btnHint #btnDefausser > * {
+  margin: auto;
+  display: inline-block;
+  font-family: "Hanami";
+  text-shadow: #000 2px 2px 2px;
+  width: 80px;
+  height: 80px;
+  font-size: 64px;
+  color:#ffffff;
+  font-weight: bolder;
+  border:none;
+  transition: 0.4s ease-out;
 }
