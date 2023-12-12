@@ -66,7 +66,10 @@ class Game{
         this.deck = new Deck();
         this.masters_players = players_list;
         this.hands = {};
-        this.stacks = [new Array(5), new Array(5), new Array(5), new Array(5), new Array(5)];
+        this.stacks = [];
+        for (let i = 0; i < 5; ++i){
+            this.stacks.push(new Array());
+        }
         this.discard = new Array();
         this.hints = 8;
         this.fails= 0;
@@ -102,7 +105,7 @@ class Game{
         if (this.hints < 8){
             let card = this.hands[player][indexCard];
             this.discard.push(card);
-            this.hands[player].splice(this.hands[player].indexOf(card), 1);
+            this.hands[player].splice(indexCard, 1);
             this.hands[player].push(this.deck.cards.pop());
             this.hints++;
             return true;
@@ -113,31 +116,34 @@ class Game{
 
     play_card(player, indexCard,indexStack){
 
-        let stack = this.stacks[indexStack];
         let card = this.hands[player][indexCard];
-        if (stack[0] == undefined && card.get_value() != 1){
-            this.discard_card(player, card);
-            this.fails++;
-            return false;
-        }
-
-        if (stack[0] != undefined && card.get_color() != stack[0].get_color()){
-            this.discard_card(player, card);
-            this.fails++;
-            return false;
-        }
-
-        for (let i = 0; i < card.get_value()-1; ++i){
-            if (stack[i] == undefined){
-                this.discard_card(player, card);
-                this.fails++;
-                return false;
+        let stackSelected = this.stacks[indexStack];
+        console.log(indexStack);
+        let isAGoodCard = true;
+        if (stackSelected.length == 0 && card.get_value() == 1){
+            this.stacks.forEach(stack => {
+                if (stack.length == 0){
+                    return;
+                }
+                let stackColor = stack[0].get_color();
+                if (stackColor == card.get_color() && stack != stackSelected){
+                    isAGoodCard = false;
+                }});
+        } else {
+            if (!(card.get_value() == stackSelected.length && card.get_color() == stackSelected[0].get_color())){
+                isAGoodCard = false;
             }
         }
-        stack[card.get_value()-1] = card;
-        this.hands[player].splice(this.hands[player].indexOf(card), 1);
+        if (isAGoodCard){
+            this.stacks[indexStack].push(card);
+        } else {
+            this.fails++;
+            this.discard.push(card);
+        }
+        
+        this.hands[player].splice(indexCard, 1);
         this.hands[player].push(this.deck.cards.pop());
-        return true;
+        return isAGoodCard;
     }
 }
 module.exports = {Card, Deck, Game};

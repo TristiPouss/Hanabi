@@ -203,7 +203,7 @@ document.addEventListener("DOMContentLoaded", function() {
         canvasPlayer3.innerHTML = "";
         console.log(res);
         displayPlayersHands(res.playersCards);
-        //displayStacks(res.stacks);
+        displayStacks(res.stacks);
         displayHand(res.nb_card);
         document.querySelector("#nbHints").innerHTML  = "Indices restants : " + res.nb_hints;
         round = res.round;
@@ -291,11 +291,12 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Play a card with a click on a cardstack with a card selected
     let cardstacks = document.querySelectorAll(".cardstack");
-    cardstacks.forEach(stack => {
+    cardstacks.forEach(stack,index => {
         stack.addEventListener("click", function(e){
+            console.log(e.target)
             if(selectedCard != null && selectedCard.parentNode == canvasHand){
                 let res = {indexCard: Array.prototype.indexOf.call(canvasHand.children, selectedCard),indexStack: Array.prototype.indexOf.call(cardstacks, e.target)};
-                socket.emit("playCard", JSON.stringify(res));
+                socket.emit("play", JSON.stringify(res));
                 selectedCard = null;
             }
         });
@@ -304,6 +305,7 @@ document.addEventListener("DOMContentLoaded", function() {
     // Discard a card with a click on a cardstack with a card selected
     let discard = document.getElementById("btnDefausser");
     discard.addEventListener("click", function(e){
+        console.log("play");
         if(selectedCard != null && selectedCard.parentNode == canvasHand){
             let res = {indexCard: Array.prototype.indexOf.call(canvasHand.children, selectedCard)};
             socket.emit("discard", JSON.stringify(res));
@@ -490,7 +492,7 @@ document.addEventListener("DOMContentLoaded", function() {
       }
 
 
-    function displayCard(card) {
+    function displayCard(card,makeClickable=true) {
         let cardDiv = document.createElement("canvas");
         cardDiv.setAttribute("class", "card");
         cardDiv.setAttribute("width", card_width);
@@ -539,19 +541,21 @@ document.addEventListener("DOMContentLoaded", function() {
         ctx.fillText(card.value, 10, 50);
         cardDiv.setAttribute("value", card.value+" "+card.color);
 
-        cardDiv.addEventListener("click", function(e) {
-            if (selectedCard != null){
-                selectedCard.classList.remove('selectedCard');
-            }
-            if(e.target == selectedCard){
+        if (makeClickable){
+            cardDiv.addEventListener("click", function(e) {
+                if (selectedCard != null){
+                    selectedCard.classList.remove('selectedCard');
+                }
+                if(e.target == selectedCard){
                 selectedCard.classList.remove('selectedCard');
                 selectedCard = null;
             } else {
                 selectedCard = e.target;
-                selectedCard.classList.add('selectedCard');
-            }
+                    selectedCard.classList.add('selectedCard');
+                }
         }
-        );
+            );
+        }
 
         return cardDiv;
     }
@@ -576,9 +580,12 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function displayStacks(stacks) {
         let stacksDiv = document.querySelectorAll(".cardstack");
+        stacksDiv.forEach(stack => {
+            stack.innerHTML = "";
+        });
         stacks.forEach(function(stack,index){
             stack.forEach(card => {
-                if (card!=undefined) stacksDiv[index].appendChild(displayCard(card));
+                if (card!=undefined) stacksDiv[index].appendChild(displayCard(card,false));
             });
         });
         

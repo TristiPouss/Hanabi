@@ -737,6 +737,8 @@ input[type=button] {
 
 #wrongAction {
   font-family: "Ayanami";
+  align-items: center;
+  margin: auto;
   text-shadow: #000 2px 2px 2px;
   color: red;
   font-size: 20px;

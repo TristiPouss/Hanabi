@@ -334,6 +334,7 @@ io.on('connection', function (socket) {
 
     socket.on("discard", function(res){
         if(currentLobby != null){
+            res = JSON.parse(res);
             if (currentLobby.currGame.discard_card(currentID, res.indexCard)){;
                 currentLobby.getClients().forEach(client => {
                     let data = new GameData(currentLobby,client);
@@ -345,7 +346,13 @@ io.on('connection', function (socket) {
 
     socket.on("play", function(res){
         if(currentLobby != null){
+            console.log(res)
+            res = JSON.parse(res);
             currentLobby.currGame.play_card(currentID, res.indexCard, res.indexStack)
+            currentLobby.getClients().forEach(client => {
+                let data = new GameData(currentLobby,client);
+                clients[client].emit("updateGame", JSON.stringify(data))
+            });
         }else console.log("Le client n'est pas dans un lobby");
     });
 });
