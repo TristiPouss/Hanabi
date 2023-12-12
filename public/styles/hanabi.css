@@ -11,6 +11,7 @@ body {
     text-decoration: none;
     overflow: hidden;
 }
+
 * {
     box-sizing: border-box;   
 }
@@ -21,6 +22,21 @@ body > div {
 
 @font-face {
   font-family: 'Hanami';
+  src: url(./Niagato.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'Hanabi';
+  src: url(./Hashiba.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'Ayanami';
+  src: url(./Harakiri.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'Rei';
   src: url(./nuku1.ttf) format('truetype');
 }
 
@@ -55,7 +71,7 @@ body > div {
   margin-left:100px;
   margin-top: 35px;
   color: white;
-  font-family: "Hanami";
+  font-family: "Ayanami";
   font-size: x-large;
   text-shadow: #000 2px 2px 2px;
 }
@@ -118,8 +134,8 @@ body > div {
 
 #content aside p{
   color: white;
-  font-family: fantasy;
-  font-size: large;
+  font-family: "Hanabi";
+  font-size: 20px;
   text-shadow: hsl(0, 0%, 0%) 2px 2px 2px;
   margin-left: 20px;
 }
@@ -690,7 +706,7 @@ input[type=button] {
 #btns > * {
   margin: auto;
   display: inline-block;
-  font-family: "Hanami";
+  font-family: "Ayanami";
   text-shadow: #000 2px 2px 2px;
   width: 80px;
   height: 80px;
@@ -706,7 +722,7 @@ input[type=button] {
 }
 
 #wrongAction {
-  font-family: "Hanami";
+  font-family: "Ayanami";
   text-shadow: #000 2px 2px 2px;
   color: red;
   font-size: 20px;
@@ -715,7 +731,7 @@ input[type=button] {
 }
 
 #nbHints {
-  font-family: "Hanami";
+  font-family: "Ayanami";
   text-shadow: #000 2px 2px 2px;
   color: white;
   font-size: 20px;
@@ -723,7 +739,7 @@ input[type=button] {
 }
 
 #nbFails {
-  font-family: "Hanami";
+  font-family: "Ayanami";
   text-shadow: #000 2px 2px 2px;
   color: red;
   font-size: 20px;

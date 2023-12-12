@@ -535,7 +535,7 @@ document.addEventListener("DOMContentLoaded", function() {
         ctx.shadowBlur = 10;
         ctx.shadowOffsetX = 2;
         ctx.shadowOffsetY = 2;
-        ctx.font = "30px Hanami";
+        ctx.font = "30px Rei";
         ctx.fillText(card.value, 10, 50);
         cardDiv.setAttribute("value", card.value+" "+card.color);
 
