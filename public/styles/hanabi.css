@@ -275,7 +275,6 @@ body > div {
   animation-duration: 2s;
   animation-timing-function: ease-out;
   transform: translateY(100%);
-
 }
 
 .moon.selected{
@@ -331,16 +330,16 @@ main #otherPlayer1 {
     justify-content: center;
     flex-direction: row-reverse;
 }
+
 main #otherPlayer2 {
-    
     display: block;
     margin:auto;
     flex-wrap :nowrap;
     flex-shrink: 0;
     grid-row-start: 2;
     grid-column-start:1;
-    
 }
+
 main #otherPlayer3 {
   display: block;
   margin:auto;
@@ -374,14 +373,15 @@ main #otherPlayer1Name {
   align-items: end;
   
 }
+
 main #otherPlayer2Name {
   grid-row-start: 3;
   grid-column-start: 1;
   display: flex;
   justify-content: center;
   align-items: end;
-  
 }
+
 main #otherPlayer3Name {
   grid-row-start: 1;
   grid-column-start: 3;
@@ -409,6 +409,7 @@ main #playBtns {
   align-items: center;
   flex-direction: row;
 }
+
 .cardstack {
   height: 140px;
   width: 100px;
@@ -432,121 +433,118 @@ main #playBtns {
 .cardstack .card:not(:first-child) {
   margin-top: -100px;
 }
+
 .card{
-  
   display: flex;
-    height: 140px;
-    width: 100px;
-    border-radius: 10px;
-    box-shadow: 0 10px 30px 5px rgba(0, 0, 0, 0.2);
+  height: 140px;
+  width: 100px;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px 5px rgba(0, 0, 0, 0.2);
+}
+
+#myCards .card {
+/*   margin-left: -50px; */
+  transition: 0.4s ease-out;
+  position: relative;
+  left: 0px;
+  bottom: 10px;
+}
+
+#myCards .card:not(:first-child) {
+    margin-left: -50px;
+}
+
+#myCards .card:hover, #myCards .card.selectedCard {
+  transform: translateY(-20px);
+  transition: 0.4s ease-out;
+}
+
+#myCards .card:hover ~ .card, #myCards .card.selectedCard ~ .card{
+  position: relative;
+  left: 50px;
+  transition: 0.4s ease-out;
+}
+
+#otherPlayer1 .card {
+/*   margin-left: -50px; */
+  transition: 0.4s ease-out;
+  position: relative;
+  right: 0px;
+}
+
+#otherPlayer1 .card:not(:first-child) {
+    margin-right: -50px;
+}
+
+#otherPlayer1 .card:hover , #otherPlayer1 .card.selectedCard{
+  transform: translateY(20px);
+  transition: 0.4s ease-out;
+}
+
+#otherPlayer1 .card:hover ~ .card , #otherPlayer1 .card.selectedCard ~ .card{
+  position: relative;
+  right: 50px;
+  transition: 0.4s ease-out;
 }
 
 
-#myCards .card {
-  /*   margin-left: -50px; */
-    transition: 0.4s ease-out;
-    position: relative;
-    left: 0px;
-    bottom: 10px;
-  }
-  
-  #myCards .card:not(:first-child) {
-      margin-left: -50px;
-  }
-  
-  #myCards .card:hover, #myCards .card.selectedCard {
-    transform: translateY(-20px);
-    transition: 0.4s ease-out;
-  }
-  
-  #myCards .card:hover ~ .card, #myCards .card.selectedCard ~ .card{
-    position: relative;
-    left: 50px;
-    transition: 0.4s ease-out;
-  }
+#otherPlayer2 .card {
+  rotate: 90deg;
+  box-shadow: 0 10px 30px 5px rgba(0, 0, 0, 0.2);
+/*   margin-left: -50px; */
+  transition: 0.4s ease-out;
+  position: relative;
+  top: 0px;
+  left: 0px
+}
 
-  #otherPlayer1 .card {
-  /*   margin-left: -50px; */
-    transition: 0.4s ease-out;
-    position: relative;
-    right: 0px;
-  }
-  
-  #otherPlayer1 .card:not(:first-child) {
-      margin-right: -50px;
-  }
-  
-  #otherPlayer1 .card:hover , #otherPlayer1 .card.selectedCard{
-    transform: translateY(20px);
-    transition: 0.4s ease-out;
-  }
-  
-  #otherPlayer1 .card:hover ~ .card , #otherPlayer1 .card.selectedCard ~ .card{
-    position: relative;
-    right: 50px;
-    transition: 0.4s ease-out;
-  }
+#otherPlayer2 .card:not(:first-child) {
+    margin-top: -100px;
+}
+
+#otherPlayer2 .card:hover , #otherPlayer2 .card.selectedCard{
+  transform: translateY(-20px);
+  transition: 0.4s ease-out;
+}
+
+#otherPlayer2 .card:hover ~ .card , #otherPlayer2 .card.selectedCard ~ .card{
+  position: relative;
+  transition: 0.4s ease-out;
+  top: 60px;
+}
 
 
-  #otherPlayer2 .card {
-    rotate: 90deg;
-    box-shadow: 0 10px 30px 5px rgba(0, 0, 0, 0.2);
-  /*   margin-left: -50px; */
-    transition: 0.4s ease-out;
-    position: relative;
-    top: 0px;
-    left: 0px
-  }
-  
-  #otherPlayer2 .card:not(:first-child) {
-      margin-top: -100px;
-  }
-  
-  #otherPlayer2 .card:hover , #otherPlayer2 .card.selectedCard{
-    transform: translateY(-20px);
-    transition: 0.4s ease-out;
-  }
-  
-  #otherPlayer2 .card:hover ~ .card , #otherPlayer2 .card.selectedCard ~ .card{
-    position: relative;
-    transition: 0.4s ease-out;
-    top: 60px;
-  }
+#otherPlayer3 .card {
+  rotate: -90deg;
+/*   margin-left: -50px; */
+  transition: 0.4s ease-out;
+  position: relative;
+  left: 0px;
+  top:0px;
+}
 
+#otherPlayer3 .card:not(:first-child) {
+    margin-top: -100px;
+}
 
-  #otherPlayer3 .card {
-    rotate: -90deg;
-  /*   margin-left: -50px; */
-    transition: 0.4s ease-out;
-    position: relative;
-    left: 0px;
-    top:0px;
-  }
-  
-  #otherPlayer3 .card:not(:first-child) {
-      margin-top: -100px;
-  }
-  
-  #otherPlayer3 .card:hover , #otherPlayer3 .card.selectedCard{
-    transform: translateY(-20px);
-    transition: 0.4s ease-out;
-  }
-  
-  #otherPlayer3 .card:hover ~ .card , #otherPlayer3 .card.selectedCard ~ .card{
-    position: relative;
-    top: 60px;
-    transition: 0.4s ease-out;
-  }
+#otherPlayer3 .card:hover , #otherPlayer3 .card.selectedCard{
+  transform: translateY(-20px);
+  transition: 0.4s ease-out;
+}
+
+#otherPlayer3 .card:hover ~ .card , #otherPlayer3 .card.selectedCard ~ .card{
+  position: relative;
+  top: 60px;
+  transition: 0.4s ease-out;
+}
   
 body > div, body > input[type=radio] {
     display: none;   
 }
-
         
 input[type=radio]:checked + div {
     display: block;   
 }
-    
         
 #logScreen {
     position: absolute; 
@@ -555,6 +553,7 @@ input[type=radio]:checked + div {
     width: 100vw;
     height: 100vh;
 }
+
 #logScreen > div {
     text-align: center;
     width: 300px;
@@ -584,6 +583,7 @@ input[type=radio]:checked + div {
   height: 100vh;
   z-index: 100;
 }
+
 #lobbyScreen > div {
   text-align: center;
   width: 800px;
@@ -667,13 +667,11 @@ input[type=radio]:checked + div {
   overflow-y: scroll;
 }
 
-
-
 a {
   text-decoration: none;
 }
 
-#btns {
+#btns, #playBtns{
   position: absolute;
   right: 0%;
   top:0%;
@@ -682,10 +680,12 @@ a {
   display:flex;
   z-index: 100; 
 }
+
 input[type=button] {
   background-color: transparent;
   cursor: pointer;
 }
+
 #btns > * {
   margin: auto;
   display: inline-block;
@@ -699,6 +699,21 @@ input[type=button] {
   border:none;
   transition: 0.4s ease-out;
 }
+
+#playBtns > * {
+  margin: auto;
+  display:block;
+  font-family: "Hanami";
+  text-shadow: #000 2px 2px 2px;
+  height: 100px;
+  padding-left: 20px;
+  font-size: 16px;
+  color:#ffffff;
+  font-weight: bolder;
+  border:none;
+  transition: 0.4s ease-out;
+}
+
 #content > footer {
   display: flex;
   justify-content: space-between;
@@ -729,7 +744,6 @@ input[type=button] {
   font-weight: bolder;
 }
 
-
 #btnCommencer:hover {
   color: rgb(6, 179, 6);
 }
@@ -737,25 +751,7 @@ input[type=button] {
 #btnQuitter:hover {
   color: rgb(248, 53, 53);
 }
+
 #btnAide:hover {
   color: rgb(0, 217, 255);
-}
-
-#btnHint #btnDefausser{
-  background-color: white;
-  font-family: "Hanami";
-}
-
-#btnHint #btnDefausser > * {
-  margin: auto;
-  display: inline-block;
-  font-family: "Hanami";
-  text-shadow: #000 2px 2px 2px;
-  width: 80px;
-  height: 80px;
-  font-size: 64px;
-  color:#ffffff;
-  font-weight: bolder;
-  border:none;
-  transition: 0.4s ease-out;
 }
