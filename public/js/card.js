@@ -118,7 +118,7 @@ class Game{
 
         let card = this.hands[player][indexCard];
         let stackSelected = this.stacks[indexStack];
-        console.log(indexStack);
+        console.log(card);
         let isAGoodCard = true;
         if (stackSelected.length == 0 && card.get_value() == 1){
             this.stacks.forEach(stack => {
@@ -130,7 +130,8 @@ class Game{
                     isAGoodCard = false;
                 }});
         } else {
-            if (!(card.get_value() == stackSelected.length && card.get_color() == stackSelected[0].get_color())){
+            if (card.get_value() != (stackSelected.length+1) || card.get_color() != stackSelected[0].get_color()){
+                console.log("pas la bonne carte");
                 isAGoodCard = false;
             }
         }

@@ -346,7 +346,6 @@ io.on('connection', function (socket) {
 
     socket.on("play", function(res){
         if(currentLobby != null){
-            console.log(res)
             res = JSON.parse(res);
             currentLobby.currGame.play_card(currentID, res.indexCard, res.indexStack)
             currentLobby.getClients().forEach(client => {

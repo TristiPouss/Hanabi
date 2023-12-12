@@ -291,11 +291,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Play a card with a click on a cardstack with a card selected
     let cardstacks = document.querySelectorAll(".cardstack");
-    cardstacks.forEach(stack => {
-        stack.addEventListener("click", function(e){
-            console.log(e.target)
+    cardstacks.forEach(function(stack,index){
+            stack.addEventListener("click", function(e){
             if(selectedCard != null && selectedCard.parentNode == canvasHand){
-                let res = {indexCard: Array.prototype.indexOf.call(canvasHand.children, selectedCard),indexStack: Array.prototype.indexOf.call(cardstacks, e.target)};
+                let res = {indexCard: Array.prototype.indexOf.call(canvasHand.children, selectedCard),indexStack: index};
                 socket.emit("play", JSON.stringify(res));
                 selectedCard = null;
             }
@@ -305,7 +304,6 @@ document.addEventListener("DOMContentLoaded", function() {
     // Discard a card with a click on a cardstack with a card selected
     let discard = document.getElementById("btnDefausser");
     discard.addEventListener("click", function(e){
-        console.log("play");
         if(selectedCard != null && selectedCard.parentNode == canvasHand){
             let res = {indexCard: Array.prototype.indexOf.call(canvasHand.children, selectedCard)};
             socket.emit("discard", JSON.stringify(res));
@@ -547,14 +545,13 @@ document.addEventListener("DOMContentLoaded", function() {
                     selectedCard.classList.remove('selectedCard');
                 }
                 if(e.target == selectedCard){
-                selectedCard.classList.remove('selectedCard');
-                selectedCard = null;
-            } else {
-                selectedCard = e.target;
+                    selectedCard.classList.remove('selectedCard');
+                    selectedCard = null;
+                } else {
+                    selectedCard = e.target;
                     selectedCard.classList.add('selectedCard');
                 }
-        }
-            );
+            });
         }
 
         return cardDiv;
