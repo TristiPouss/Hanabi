@@ -74,6 +74,8 @@ class Game{
         this.hints = 8;
         this.fails= 0;
         this.deal();
+        this.lastTurn = false;
+        this.lastPlayer = null;
     }
 
     deal(){
@@ -106,11 +108,20 @@ class Game{
             let card = this.hands[player][indexCard];
             this.discard.push(card);
             this.hands[player].splice(indexCard, 1);
-            this.hands[player].push(this.deck.cards.pop());
+            this.deal_card(player);
             this.hints++;
             return true;
         } else {
             return false;
+        }
+    }
+
+    deal_card(player){
+        if (this.deck.cards.length > 0){
+            this.hands[player].push(this.deck.cards.pop());
+        }
+        if (this.deck.cards.length == 0){
+            this.lastTurn = true;
         }
     }
 
@@ -141,10 +152,42 @@ class Game{
             this.fails++;
             this.discard.push(card);
         }
-        
         this.hands[player].splice(indexCard, 1);
-        this.hands[player].push(this.deck.cards.pop());
+        this.deal_card(player);
         return isAGoodCard;
+    }
+
+    endGame(player){
+        //3 fails or all stacks are full
+        if (this.fails >= 3){
+            return true;
+        }
+
+        //Turn of the player who picked the last card
+        if (this.deck.cards.length == 0 && player == this.lastPlayer){
+            return true;
+        }
+        if (this.lastTurn){
+            this.lastPlayer = player;
+        }
+
+        //check if all stacks are full
+        for (let i = 0; i < 5; ++i){
+            if (this.stacks[i].length != 5){
+                return false;
+            }
+        }
+    }
+
+    processScore(){
+        let score = 0;
+        this.stacks.forEach(stack => {
+            if (stack.length == 0){
+                return;
+            }
+            score += stack[stack.length-1].get_value();
+        });
+        return score;
     }
 }
 module.exports = {Card, Deck, Game};

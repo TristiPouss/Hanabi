@@ -733,6 +733,8 @@ input[type=button] {
 #content > footer {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  width: 100%;
 }
 
 #wrongAction {
@@ -748,10 +750,12 @@ input[type=button] {
 
 #nbHints {
   font-family: "Ayanami";
+  position: absolute;
   text-shadow: #000 2px 2px 2px;
   color: white;
   font-size: 20px;
   font-weight: bolder;
+  left: 0%;
 }
 
 #nbFails {
@@ -760,6 +764,8 @@ input[type=button] {
   color: red;
   font-size: 20px;
   font-weight: bolder;
+  position:absolute;
+  right: 10%;
 }
 
 #btnCommencer:hover {

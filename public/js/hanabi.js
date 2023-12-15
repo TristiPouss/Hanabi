@@ -192,6 +192,7 @@ document.addEventListener("DOMContentLoaded", function() {
         displayPlayersHands(res.playersCards);
         displayHand(res.nb_card);
         document.querySelector("#nbHints").innerHTML  = "Indices restants : " + res.nb_hints;
+        document.querySelector("#nbFails").innerHTML  = "Nombre d'erreurs : " + res.nb_fails;
     })
 
     socket.on("updateGame",function(e){
@@ -207,6 +208,7 @@ document.addEventListener("DOMContentLoaded", function() {
         displayHand(res.nb_card);
         document.querySelector("#nbHints").innerHTML  = "Indices restants : " + res.nb_hints;
         round = res.round;
+        document.querySelector("#nbFails").innerHTML  = "Nombre d'erreurs : " + res.nb_fails;
     });
     
     socket.on("updateHints",function(e){
@@ -236,6 +238,24 @@ document.addEventListener("DOMContentLoaded", function() {
 
     });
     
+    socket.on("endGame",function(e){
+        let res = JSON.parse(e);
+        let score = res.score;
+
+        if(isOwner){
+            btnCommencer.removeAttribute('disabled');
+            btnCommencer.setAttribute("style","display:block");
+        }
+        canvasHand.innerHTML = "";
+        canvasPlayer1.innerHTML = "";
+        canvasPlayer2.innerHTML = "";
+        canvasPlayer3.innerHTML = "";
+        namePlayer1.innerHTML = "";
+        namePlayer2.innerHTML = "";
+        namePlayer3.innerHTML = "";
+    });
+
+
     /************************************************
      *                                             *
      *             Event Listeners                 *

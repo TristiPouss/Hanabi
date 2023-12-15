@@ -327,6 +327,7 @@ io.on('connection', function (socket) {
                 currentLobby.getClients().forEach(client => {
                     clients[client].emit("updateHints", respHint);
                 });
+                checkEndGame(currentID);
             } else clients[currentID].emit("wrongAction", "Impossible de donner une information");
 
         }else console.log("Le client n'est pas dans un lobby");
@@ -340,6 +341,7 @@ io.on('connection', function (socket) {
                     let data = new GameData(currentLobby,client);
                     clients[client].emit("updateGame", JSON.stringify(data))
                 });
+                checkEndGame(currentID);
             } else clients[currentID].emit("wrongAction", "Impossible de defausser la carte");
         }else{console.log("Le client n'est pas dans un lobby");}
     });
@@ -352,6 +354,19 @@ io.on('connection', function (socket) {
                 let data = new GameData(currentLobby,client);
                 clients[client].emit("updateGame", JSON.stringify(data))
             });
+            checkEndGame(currentID);
         }else console.log("Le client n'est pas dans un lobby");
     });
+
+    function checkEndGame(player){
+        if(currentLobby.currGame.endGame(player)){
+            sendLogToLobby(false, "Fin de la partie");
+            let score = currentLobby.currGame.processScore();
+            sendLogToLobby(false, "Score : " + score);
+            currentLobby.getClients().forEach(client => {
+                clients[client].emit("endGame", JSON.stringify(score));
+            });
+            currentLobby.currGame = null;
+        }
+    }
 });
