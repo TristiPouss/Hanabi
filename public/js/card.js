@@ -177,6 +177,7 @@ class Game{
                 return false;
             }
         }
+        return true;
     }
 
     processScore(){

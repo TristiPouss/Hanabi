@@ -49,7 +49,8 @@ document.addEventListener("DOMContentLoaded", function() {
     let selectedCard = null;
 
     let actionHint;
-
+    let cardstacks = document.querySelectorAll(".cardstack");
+    
     //using the popup-js library to create a popup for the hint action
     const popup = new Popup({
         id: "override",
@@ -250,9 +251,9 @@ document.addEventListener("DOMContentLoaded", function() {
         canvasPlayer1.innerHTML = "";
         canvasPlayer2.innerHTML = "";
         canvasPlayer3.innerHTML = "";
-        namePlayer1.innerHTML = "";
-        namePlayer2.innerHTML = "";
-        namePlayer3.innerHTML = "";
+        cardstacks.forEach(stack => {
+            stack.innerHTML = "";
+        })
     });
 
 
@@ -310,7 +311,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
     // Play a card with a click on a cardstack with a card selected
-    let cardstacks = document.querySelectorAll(".cardstack");
+    
     cardstacks.forEach(function(stack,index){
             stack.addEventListener("click", function(e){
             if(selectedCard != null && selectedCard.parentNode == canvasHand){
@@ -367,6 +368,19 @@ document.addEventListener("DOMContentLoaded", function() {
             }else if(lobbyListPage){
                 btnCreer.click();
             }
+        }
+        // DEBUG
+        if (e.key == "h"){
+            let res = {idPlayer:id, value: "red"};
+            socket.emit("hint", JSON.stringify(res));
+        }
+        if (e.key == "p"){
+            let res = {indexCard: 0,indexStack: 0};
+            socket.emit("play", JSON.stringify(res));
+        }
+        if (e.key == "d"){
+            let res = {indexCard: 0};
+            socket.emit("discard", JSON.stringify(res));
         }
     })
 
