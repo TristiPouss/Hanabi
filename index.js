@@ -323,17 +323,20 @@ io.on('connection', function (socket) {
             res = JSON.parse(res);
             let resp = currentLobby.currGame.give_information(res.idPlayer, res.value);
             if(resp){
+                //Treatment of the response
                 sendLogToLobby(false, currentID + " a donné une information à " + res.idPlayer);
                 res.value = traductionColor(res.value);
                 sendLogToLobby(false, "Les cartes " + resp + " sont " + res.value);
-                let respHint = {nb_hints : currentLobby.currGame.hints}
+                if(!checkEndGame(currentID)){
+                    changeTurn()
+                };
+                //Update of the hints
+                let respHint = {nb_hints : currentLobby.currGame.hints, turn : currentLobby.nextPlayer}
                 respHint = JSON.stringify(respHint);
                 currentLobby.getClients().forEach(client => {
                     clients[client].emit("updateHints", respHint);
                 });
-                if(!checkEndGame(currentID)){
-                    
-                };
+                
             } else clients[currentID].emit("wrongAction", "Impossible de donner une information");
 
         }else console.log("Le client n'est pas dans un lobby");
@@ -343,11 +346,14 @@ io.on('connection', function (socket) {
         if(currentLobby != null){
             res = JSON.parse(res);
             if (currentLobby.currGame.discard_card(currentID, res.indexCard)){;
+                if(!checkEndGame(currentID)){
+                    changeTurn()
+                };
                 currentLobby.getClients().forEach(client => {
                     let data = new GameData(currentLobby,client);
                     clients[client].emit("updateGame", JSON.stringify(data))
                 });
-                checkEndGame(currentID);
+                
             } else clients[currentID].emit("wrongAction", "Impossible de defausser la carte");
         }else{console.log("Le client n'est pas dans un lobby");}
     });
@@ -356,11 +362,13 @@ io.on('connection', function (socket) {
         if(currentLobby != null){
             res = JSON.parse(res);
             currentLobby.currGame.play_card(currentID, res.indexCard, res.indexStack)
+            if(!checkEndGame(currentID)){
+                changeTurn()
+            };
             currentLobby.getClients().forEach(client => {
                 let data = new GameData(currentLobby,client);
                 clients[client].emit("updateGame", JSON.stringify(data))
             });
-            checkEndGame(currentID);
         }else console.log("Le client n'est pas dans un lobby");
     });
 

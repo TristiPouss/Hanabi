@@ -216,6 +216,7 @@ document.addEventListener("DOMContentLoaded", function() {
     
     socket.on("updateHints",function(e){
         let res = JSON.parse(e);
+        nextTurn = res.turn;
         document.querySelector("#nbHints").innerHTML  = "Indices restants : " + res.nb_hints;
     });
 
