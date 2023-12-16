@@ -38,11 +38,13 @@ class Lobby {
     owner;
     littlePlayers;
     currGame;
+    nextPlayer;
     constructor(n, id){
         this.name = n;
         this.owner = id;
         this.littlePlayers = [id];
         this.currGame = null;
+        this.nextPlayer = null;
         lobbyArray.push(this);
     }
 
@@ -98,12 +100,12 @@ class GameData {
         this.nb_hints = Lobby.currGame.hints;
         this.nb_fails = Lobby.currGame.fails
         this.stacks = Lobby.currGame.stacks;
-        this.round = 0;
         Object.keys(Lobby.currGame.hands).forEach(clientName => {
             if (clientName != Player){
                 this.playersCards[clientName] = Lobby.currGame.hands[clientName];
             }
         });
+        this.turn = Lobby.nextPlayer;
     }
 }
 
@@ -304,10 +306,12 @@ io.on('connection', function (socket) {
         && currentLobby.littlePlayers.length > 1){
             currentLobby.launchGame();
             sendLogToLobby(false, "Lancement de la partie");
+            currentLobby.nextPlayer = currentLobby.currGame.masters_players[0];
             currentLobby.getClients().forEach(client => {
                 let data = new GameData(currentLobby,client);
                 clients[client].emit("launchGame", JSON.stringify(data));
             });
+            sendLogToLobby(false, "C'est au tour de " + currentLobby.nextPlayer);
         }else {
             console.log("La partie ne peut pas être lancée");
             sendLogToLobby(false, "Les conditions pour lancer la partie ne sont pas remplies");
@@ -320,14 +324,16 @@ io.on('connection', function (socket) {
             let resp = currentLobby.currGame.give_information(res.idPlayer, res.value);
             if(resp){
                 sendLogToLobby(false, currentID + " a donné une information à " + res.idPlayer);
-                if (res.value == "color") res.value = traductionColor(res.value);
+                res.value = traductionColor(res.value);
                 sendLogToLobby(false, "Les cartes " + resp + " sont " + res.value);
                 let respHint = {nb_hints : currentLobby.currGame.hints}
                 respHint = JSON.stringify(respHint);
                 currentLobby.getClients().forEach(client => {
                     clients[client].emit("updateHints", respHint);
                 });
-                checkEndGame(currentID);
+                if(!checkEndGame(currentID)){
+                    
+                };
             } else clients[currentID].emit("wrongAction", "Impossible de donner une information");
 
         }else console.log("Le client n'est pas dans un lobby");
@@ -367,6 +373,18 @@ io.on('connection', function (socket) {
                 clients[client].emit("endGame", JSON.stringify(score));
             });
             currentLobby.currGame = null;
+            return true;
         }
+        return false;
+    }
+
+    function changeTurn(){
+        currentLobby.nextPlayer = currentLobby.currGame.nextPlayer(currentLobby.nextPlayer);
+        currentLobby.getClients().forEach(client => {
+            if(client == currentLobby.nextPlayer){
+                clients[client].emit("yourTurn");
+            }
+        });
+        sendLogToLobby(false, "C'est au tour de " + currentLobby.nextPlayer);
     }
 });

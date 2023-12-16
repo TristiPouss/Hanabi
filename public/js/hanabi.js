@@ -50,7 +50,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
     let actionHint;
     let cardstacks = document.querySelectorAll(".cardstack");
-    
+
+    let nextTurn = null;
+
     //using the popup-js library to create a popup for the hint action
     const popup = new Popup({
         id: "override",
@@ -189,7 +191,7 @@ document.addEventListener("DOMContentLoaded", function() {
             btnCommencer.setAttribute("style","display:none");
         }
         let res = JSON.parse(e);
-        
+        nextTurn = res.turn;
         displayPlayersHands(res.playersCards);
         displayHand(res.nb_card);
         document.querySelector("#nbHints").innerHTML  = "Indices restants : " + res.nb_hints;
@@ -198,12 +200,12 @@ document.addEventListener("DOMContentLoaded", function() {
 
     socket.on("updateGame",function(e){
         let res = JSON.parse(e);
-
+        nextTurn = res.turn;
         canvasHand.innerHTML = "";
         canvasPlayer1.innerHTML = "";
         canvasPlayer2.innerHTML = "";
         canvasPlayer3.innerHTML = "";
-        console.log(res);
+
         displayPlayersHands(res.playersCards);
         displayStacks(res.stacks);
         displayHand(res.nb_card);
@@ -314,10 +316,14 @@ document.addEventListener("DOMContentLoaded", function() {
     
     cardstacks.forEach(function(stack,index){
             stack.addEventListener("click", function(e){
-            if(selectedCard != null && selectedCard.parentNode == canvasHand){
-                let res = {indexCard: Array.prototype.indexOf.call(canvasHand.children, selectedCard),indexStack: index};
-                socket.emit("play", JSON.stringify(res));
-                selectedCard = null;
+            if (id == nextTurn){
+                if(selectedCard != null && selectedCard.parentNode == canvasHand){
+                    let res = {indexCard: Array.prototype.indexOf.call(canvasHand.children, selectedCard),indexStack: index};
+                    socket.emit("play", JSON.stringify(res));
+                    selectedCard = null;
+                }
+            } else {
+                alert("Ce n'est pas votre tour");
             }
         });
     });
@@ -325,11 +331,15 @@ document.addEventListener("DOMContentLoaded", function() {
     // Discard a card with a click on a cardstack with a card selected
     let discard = document.getElementById("btnDefausser");
     discard.addEventListener("click", function(e){
-        if(selectedCard != null && selectedCard.parentNode == canvasHand){
-            let res = {indexCard: Array.prototype.indexOf.call(canvasHand.children, selectedCard)};
-            socket.emit("discard", JSON.stringify(res));
-            selectedCard.classList.remove('selectedCard');
-            selectedCard = null;
+        if (id == nextTurn){
+            if(selectedCard != null && selectedCard.parentNode == canvasHand){
+                let res = {indexCard: Array.prototype.indexOf.call(canvasHand.children, selectedCard)};
+                socket.emit("discard", JSON.stringify(res));
+                selectedCard.classList.remove('selectedCard');
+                selectedCard = null;
+            }
+        } else {
+            alert("Ce n'est pas votre tour");
         }
     });
 
@@ -343,21 +353,25 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     // Send a hint with a click on a cardstack with a card selected
-    function giveHint(e){
-        if (selectedCard != null && selectedCard.parentNode != canvasHand){
-            let hint_value = null;
-            if (actionHint == "value"){
-                hint_value = selectedCard.getAttribute("value").split(" ")[0];
-            } else if (actionHint == "color"){
-                hint_value = selectedCard.getAttribute("value").split(" ")[1];   
+    function giveHint(){
+        if (id == nextTurn){
+            if (selectedCard != null && selectedCard.parentNode != canvasHand){
+                let hint_value = null;
+                if (actionHint == "value"){
+                    hint_value = selectedCard.getAttribute("value").split(" ")[0];
+                } else if (actionHint == "color"){
+                    hint_value = selectedCard.getAttribute("value").split(" ")[1];   
+                }
+                let idOwner = selectedCard.parentNode.getAttribute("owner");
+                let res = {idPlayer:idOwner, value: hint_value};
+                socket.emit("hint", JSON.stringify(res));
+                selectedCard.classList.remove('selectedCard');
+                selectedCard = null;
+            } else {
+                alert("Veuillez sélectionner une carte");
             }
-            let idOwner = selectedCard.parentNode.getAttribute("owner");
-            let res = {idPlayer:idOwner, value: hint_value};
-            socket.emit("hint", JSON.stringify(res));
-            selectedCard.classList.remove('selectedCard');
-            selectedCard = null;
         } else {
-            alert("Veuillez sélectionner une carte");
+            alert("Ce n'est pas votre tour");
         }
     }
 

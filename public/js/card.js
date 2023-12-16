@@ -73,6 +73,7 @@ class Game{
         this.discard = new Array();
         this.hints = 8;
         this.fails= 0;
+        this.round = 0;
         this.deal();
         this.lastTurn = false;
         this.lastPlayer = null;
@@ -98,6 +99,7 @@ class Game{
                 }
             }
             this.hints--;
+            this.round++;
             return hintsValues;
         }
         return false;
@@ -110,6 +112,7 @@ class Game{
             this.hands[player].splice(indexCard, 1);
             this.deal_card(player);
             this.hints++;
+            this.round++;
             return true;
         } else {
             return false;
@@ -154,6 +157,7 @@ class Game{
         }
         this.hands[player].splice(indexCard, 1);
         this.deal_card(player);
+        this.round++;
         return isAGoodCard;
     }
 
@@ -189,6 +193,15 @@ class Game{
             score += stack[stack.length-1].get_value();
         });
         return score;
+    }
+
+    nextPlayer(player){
+        let index = this.masters_players.indexOf(player);
+        if (index == this.masters_players.length-1){
+            return this.masters_players[0];
+        } else {
+            return this.masters_players[index+1];
+        }
     }
 }
 module.exports = {Card, Deck, Game};
