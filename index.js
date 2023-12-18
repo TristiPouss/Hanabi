@@ -49,6 +49,10 @@ class Lobby {
     }
 
     addPlayer(n){
+        while(this.littlePlayers.includes(n)){
+            // Mostly used for bots
+            n += " (1)";
+        }
         return this.littlePlayers.push(n);
     }
 
@@ -253,19 +257,20 @@ io.on('connection', function (socket) {
         // double vérification du currentLobby
         if(currentLobby != null && currentLobby.rmPlayer(currentID)){
             sendLogToLobby(true, currentID + " a quitté le lobby.");
-            let reset = false;
+            //let reset = false;
             if(currentLobby.currGame != null){
-                reset = true;
-                currentLobby.currGame = null;
-                sendLogToLobby(false, "Partie interrompue");
+                //reset = true;
+                //currentLobby.currGame = null;
+                currentLobby.addPlayer("bot");
+                sendLogToLobby(false, currentID + " à été remplacé par un bot");
             }
             currentLobby.getClients().forEach(client => {
                 if(client == currentLobby.owner){
                     clients[client].emit('newOwner');
                 }
-                if(reset){
-                    clients[client].emit("resetGame");
-                }
+                //if(reset){
+                //    clients[client].emit("resetGame");
+                //}
             });
         };
     }
@@ -396,12 +401,24 @@ io.on('connection', function (socket) {
 
     function changeTurn(){
         currentLobby.nextPlayer = currentLobby.currGame.nextPlayer(currentLobby.nextPlayer);
+        sendLogToLobby(false, "C'est au tour de " + currentLobby.nextPlayer);
         currentLobby.getClients().forEach(client => {
-            if(client == currentLobby.nextPlayer){
+            // Bot
+            if(client.splice(" ")[0] == "bot"
+            && client == currentLobby.nextPlayer){
+                currentLobby.currGame.bot_play(client);
+                changeTurn();
+                currentLobby.getClients().forEach(client => {
+                    let data = new GameData(currentLobby,client);
+                    data.discard_card = currentLobby.currGame.discard[currentLobby.currGame.discard.length - 1]; 
+                    clients[client].emit("updateGame", JSON.stringify(data))
+                });
+            }
+            // Client
+            else if(client == currentLobby.nextPlayer){
                 clients[client].emit("yourTurn");
             }
         });
-        sendLogToLobby(false, "C'est au tour de " + currentLobby.nextPlayer);
     }
 
 
@@ -409,5 +426,6 @@ io.on('connection', function (socket) {
     /*         BOT PART            */
     /***************************** */
 
+    // Yippie 
 
 });

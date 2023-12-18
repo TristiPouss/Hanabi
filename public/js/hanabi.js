@@ -225,13 +225,14 @@ document.addEventListener("DOMContentLoaded", function() {
         console.log(knownCards);
         console.log("------");
         for(let i = 0; i<res.cards.length; ++i){
-            if(knownCards[res.cards[i]] === undefined){
-                knownCards[res.cards[i]] = {number:null, color:null};
+            let count = res.cards[i]--;
+            if(knownCards[count] === undefined){
+                knownCards[count] = {number:null, color:null};
             }
             if(Number.isInteger(parseInt(res.value))){
-                knownCards[res.cards[i]].number = res.value;
+                knownCards[count].number = res.value;
             }else{
-                knownCards[res.cards[i]].color = res.value;
+                knownCards[count].color = res.value;
             }
         }
         console.log(knownCards);
@@ -351,7 +352,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     let indexCrd = Array.prototype.indexOf.call(canvasHand.children, selectedCard);
                     let res = {indexCard: indexCrd,indexStack: index};
                     socket.emit("play", JSON.stringify(res));
-                    knownCards[indexCrd+1] = {number:null, color:null};
+                    knownCards[indexCrd] = {number:null, color:null};
                     selectedCard.classList.remove('selected');
                     selectedCard = null;
                 }
@@ -406,6 +407,10 @@ document.addEventListener("DOMContentLoaded", function() {
         } else {
             alert("Ce n'est pas votre tour");
         }
+    }
+
+    function knownHintChange(n){
+        
     }
 
     document.addEventListener("keypress", function(e){
@@ -666,7 +671,7 @@ document.addEventListener("DOMContentLoaded", function() {
             let ctx = cardDiv.getContext("2d");
 
             let c = "grey";
-            if( knownCards[curr_number] !== undefined 
+            if(knownCards[curr_number] !== undefined 
             && knownCards[curr_number].color !== null){
                 c = knownCards[curr_number].color;
             }
@@ -717,7 +722,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function displayHand(numberCards) {
         for(let i = 0;i<numberCards;i++){
-            let cardDiv = displayOwnCards(i+1);
+            let cardDiv = displayOwnCards(i);
             canvasHand.appendChild(cardDiv);
         }
     }
