@@ -64,7 +64,10 @@ class Deck {
 class Game{
     constructor(players_list){
         this.deck = new Deck();
-        this.masters_players = players_list;
+        this.masters_players = [];
+        players_list.forEach(player => {
+           this.masters_players.push(player);
+        });
         this.hands = {};
         this.stacks = [];
         for (let i = 0; i < 5; ++i){
@@ -208,40 +211,55 @@ class Game{
         let cards = this.hands[player];
         let played = false;
 
-        cards.forEach(card => {
-            if (card.get_value() == 1){
-                let stackSelected = this.stacks.find(stack => stack[0].get_color() == card.get_color());
-                if (stackSelected == undefined){
-                    stackSelected = this.stacks.find(stack => stack.length == 0);
-                    this.play_card(player, i, this.stacks.indexOf(stackSelected));
-                    played = true;
-                    return;
-                }
-            } else {
-                let stackSelected = this.stacks.find(stack => stack[0].get_color() == card.get_color());
-                if (stackSelected != undefined && stackSelected.length+1 == card.get_value()){
-                    this.play_card(player, i, this.stacks.indexOf(stackSelected));
-                    played = true;
-                    return;
+        cards.forEach(function (card,index){
+            if (!played){
+                console.log(this)
+                let stackSelected;
+                if (card.get_value() == 1){
+                    this.stacks.forEach(stack => {
+                        if (stack.length == 1 && stack[0].get_color() == card.get_color()){
+                            stackSelected = stack;
+                        }
+                    });
+                    if (stackSelected == undefined){
+                        this.stacks.forEach(stack => {
+                            if (stack.length == 0){
+                                stackSelected = stack;
+                            };
+                        });
+                        this.play_card(player, index, this.stacks.indexOf(stackSelected));
+                        played = true;
+                    }
+                } else {
+                    this.stacks.forEach(stack => {
+                        if (stack.length != 0){
+                           if (stack[0].get_color() == card.get_color() && stack.length+1 == card.get_value()){
+                               stackSelected = stack;
+                           }
+                        };
+                    });
+                    if (stackSelected != undefined){
+                        this.play_card(player, index, this.stacks.indexOf(stackSelected));
+                        played = true;
+                    }
                 }
             }
-        });
+        },this);
 
-        if (this.hints > 0 && !played){
-            let playerGiven = this.masters_players[Math.floor(Math.random() * this.masters_players.length)];
-            let index = Math.floor(Math.random() * cards.length);
+        if(played){
+            return 'play';
+        }
 
-
-            let info = Math.floor(Math.random() * 2) < 1 ? this.hands[playerGiven][index].get_value() : this.hands[playerGiven][index].get_color();
-            
-            this.give_information(playerGiven, info);
+        if (this.hints > 0){
             played = true;
+            return 'hint'
         }
 
         if (this.hints < 8 && !played){
             let index = Math.floor(Math.random() * cards.length);
             this.discard_card(player, index);
             played = true;
+            return 'discard'
         }
     }
 }

@@ -37,12 +37,14 @@ class Lobby {
     name;
     owner;
     littlePlayers;
+    deconnectedPlayers;
     currGame;
     nextPlayer;
     constructor(n, id){
         this.name = n;
         this.owner = id;
         this.littlePlayers = [id];
+        this.deconnectedPlayers = [];
         this.currGame = null;
         this.nextPlayer = null;
         lobbyArray.push(this);
@@ -255,9 +257,13 @@ io.on('connection', function (socket) {
             sendLogToLobby(true, currentID + " a quitté le lobby.");
             let reset = false;
             if(currentLobby.currGame != null){
-                reset = true;
-                currentLobby.currGame = null;
-                sendLogToLobby(false, "Partie interrompue");
+                /**DECONNEXION D'UN JOUEUR -> BOT */
+                currentLobby.deconnectedPlayers.push(currentID);
+                sendLogToLobby(false, currentID + " a quitté la partie. Il est remplacé par un bot.");
+                /** RESET DE LA PARTIE */
+                //reset = true;
+                //currentLobby.currGame = null;
+                //sendLogToLobby(false, "Partie interrompue");
             }
             currentLobby.getClients().forEach(client => {
                 if(client == currentLobby.owner){
@@ -327,7 +333,9 @@ io.on('connection', function (socket) {
                 //Treatment of the response
                 sendLogToLobby(false, currentID + " donne un indice à " + res.idPlayer);
                 let data = new GameData(currentLobby, res.idPlayer);
-                clients[res.idPlayer].emit("hint", JSON.stringify({cards:resp, value:res.value, nb_card:data.nb_card}));
+                if (clients[res.idPlayer] != undefined){
+                    clients[res.idPlayer].emit("hint", JSON.stringify({cards:resp, value:res.value, nb_card:data.nb_card}));
+                };
                 res.value = traductionColor(res.value);
                 sendLogToLobby(false, "Les cartes " + resp + " sont " + res.value);
                 if(!checkEndGame(currentID)){
@@ -396,12 +404,51 @@ io.on('connection', function (socket) {
 
     function changeTurn(){
         currentLobby.nextPlayer = currentLobby.currGame.nextPlayer(currentLobby.nextPlayer);
+        let playerFound = false;
+
         currentLobby.getClients().forEach(client => {
-            if(client == currentLobby.nextPlayer){
-                clients[client].emit("yourTurn");
+            if (client == currentLobby.nextPlayer){
+                playerFound = true;
             }
         });
-        sendLogToLobby(false, "C'est au tour de " + currentLobby.nextPlayer);
+
+        if (playerFound){
+            sendLogToLobby(false, "C'est au tour de " + currentLobby.nextPlayer);
+            return;
+        }
+        sendLogToLobby(false, "C'est au tour du bot qui remplace " + currentLobby.nextPlayer);
+        console.log(currentLobby.currGame);
+        let action = currentLobby.currGame.bot_play(currentLobby.nextPlayer);
+        if (action == "play"){
+            sendLogToLobby(false, "Le bot joue une carte");
+        } else if (action == "discard"){
+            sendLogToLobby(false, "Le bot defausse une carte");
+        }
+
+        if(!checkEndGame(currentLobby.nextPlayer)){
+            changeTurn();
+        };
+
+        if (action != "hint"){
+            currentLobby.getClients().forEach(client => {
+                let data = new GameData(currentLobby,client);
+                data.discard_card = currentLobby.currGame.discard[currentLobby.currGame.discard.length - 1];
+                clients[client].emit("updateGame", JSON.stringify(data));
+            });
+        } else {
+                let playerGiven = currentLobby.littlePlayers[Math.floor(Math.random() * currentLobby.littlePlayers.length)];
+                let index = Math.floor(Math.random() * currentLobby.currGame.hands[playerGiven].length);
+                let info = Math.floor(Math.random() * 2) < 1 ? currentLobby.currGame.hands[playerGiven][index].get_value() : currentLobby.currGame.hands[playerGiven][index].get_color();
+                
+                let resp = currentLobby.currGame.give_information(playerGiven, info);
+
+                sendLogToLobby(false, currentLobby.nextPlayer + " donne un indice à " + playerGiven);
+                let data = new GameData(currentLobby, playerGiven);
+                clients[playerGiven].emit("hint", JSON.stringify({cards:resp, value:info, nb_card:data.nb_card}));
+                info = traductionColor(info);
+                sendLogToLobby(false, "Les cartes " + resp + " sont " + info);
+        }
+
     }
 
 
