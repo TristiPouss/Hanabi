@@ -324,7 +324,9 @@ io.on('connection', function (socket) {
             let resp = currentLobby.currGame.give_information(res.idPlayer, res.value);
             if(resp){
                 //Treatment of the response
-                sendLogToLobby(false, currentID + " a donné une information à " + res.idPlayer);
+                sendLogToLobby(false, currentID + " donne un indice à " + res.idPlayer);
+                let data = new GameData(currentLobby, res.idPlayer);
+                clients[res.idPlayer].emit("hint", JSON.stringify({cards:resp, value:res.value, nb_card:data.nb_card}));
                 res.value = traductionColor(res.value);
                 sendLogToLobby(false, "Les cartes " + resp + " sont " + res.value);
                 if(!checkEndGame(currentID)){
