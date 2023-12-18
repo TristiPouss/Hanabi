@@ -211,7 +211,7 @@ document.addEventListener("DOMContentLoaded", function() {
         displayStacks(res.stacks);
         displayHand(res.nb_card);
         document.querySelector("#nbHints").innerHTML  = "Indices restants : " + res.nb_hints;
-        round = res.round;
+        let round = res.round;
         document.querySelector("#nbFails").innerHTML  = "Nombre d'erreurs : " + res.nb_fails;
     });
     
@@ -253,6 +253,9 @@ document.addEventListener("DOMContentLoaded", function() {
         namePlayer1.innerHTML = "";
         namePlayer2.innerHTML = "";
         namePlayer3.innerHTML = "";
+        cardstacks.forEach(stack => {
+            stack.innerHTML = "";
+        })
     });
 
     socket.on("wrongAction", function(res){
@@ -340,8 +343,11 @@ document.addEventListener("DOMContentLoaded", function() {
             stack.addEventListener("click", function(e){
             if (id == nextTurn){
                 if(selectedCard != null && selectedCard.parentNode == canvasHand){
-                    let res = {indexCard: Array.prototype.indexOf.call(canvasHand.children, selectedCard),indexStack: index};
+                    let indexCrd = Array.prototype.indexOf.call(canvasHand.children, selectedCard);
+                    let res = {indexCard: indexCrd,indexStack: index};
                     socket.emit("play", JSON.stringify(res));
+                    knownCards[indexCrd+1] = {number:null, color:null};
+                    selectedCard.classList.remove('selected');
                     selectedCard = null;
                 }
             } else {
@@ -458,6 +464,9 @@ document.addEventListener("DOMContentLoaded", function() {
         canvasPlayer1.innerHTML = "";
         canvasPlayer2.innerHTML = "";
         canvasPlayer3.innerHTML = "";
+        cardstacks.forEach(stack => {
+            stack.innerHTML = "";
+        })
 
         btnCommencer.setAttribute('disabled',true);
         btnCommencer.setAttribute("style","display:none");
