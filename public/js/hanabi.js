@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const discardDiv = document.getElementById("discard");
 
     let selectedCard = null;
-    let knownCards = {};
+    let knownCards = [];
 
     let actionHint;
     let cardstacks = document.querySelectorAll(".cardstack");
@@ -194,7 +194,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
         let res = JSON.parse(e);
         nextTurn = res.turn;
-        knownCards = {};
+        knownCards = [];
         displayPlayersHands(res.playersCards);
         displayHand(res.nb_card);
         document.querySelector("#nbHints").innerHTML  = "Indices restants : " + res.nb_hints;
@@ -224,11 +224,13 @@ document.addEventListener("DOMContentLoaded", function() {
         console.log(res);
         console.log(knownCards);
         console.log("------");
-        for(let i = 0; i<res.cards.length; ++i){
-            let count = res.cards[i]--;
-            if(knownCards[count] === undefined){
-                knownCards[count] = {number:null, color:null};
+        for(let i = 0; i<res.nb_card; ++i){
+            if(knownCards[i] === undefined){
+                knownCards[i] = {number:null, color:null};
             }
+        }
+        for(let i = 0; i<res.cards.length; ++i){
+            let count = res.cards[i]-1;
             if(Number.isInteger(parseInt(res.value))){
                 knownCards[count].number = res.value;
             }else{
@@ -351,8 +353,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 if(selectedCard != null && selectedCard.parentNode == canvasHand){
                     let indexCrd = Array.prototype.indexOf.call(canvasHand.children, selectedCard);
                     let res = {indexCard: indexCrd,indexStack: index};
+                    knownHintChange(indexCrd);
                     socket.emit("play", JSON.stringify(res));
-                    knownCards[indexCrd] = {number:null, color:null};
                     selectedCard.classList.remove('selected');
                     selectedCard = null;
                 }
@@ -367,7 +369,9 @@ document.addEventListener("DOMContentLoaded", function() {
     discard.addEventListener("click", function(e){
         if (id == nextTurn){
             if(selectedCard != null && selectedCard.parentNode == canvasHand){
-                let res = {indexCard: Array.prototype.indexOf.call(canvasHand.children, selectedCard)};
+                let indexCrd = Array.prototype.indexOf.call(canvasHand.children, selectedCard);
+                let res = {indexCard: indexCrd};
+                knownHintChange(indexCrd);
                 socket.emit("discard", JSON.stringify(res));
                 selectedCard.classList.remove('selectedCard');
                 selectedCard = null;
@@ -410,7 +414,15 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function knownHintChange(n){
-        
+        console.log("change");
+        console.log(knownCards);
+        console.log(n);
+        for(let i = n; i<knownCards.length-1; ++i){
+            knownCards[i] = knownCards[i+1];
+            console.log(knownCards[i]);
+        }
+        knownCards[knownCards.length-1] = {number:null, color:null};
+        console.log(knownCards);
     }
 
     document.addEventListener("keypress", function(e){
@@ -456,7 +468,7 @@ document.addEventListener("DOMContentLoaded", function() {
         userArray = [];
         lobbyArray = [];
         selectedCard = null;
-        knownCards = {};
+        knownCards = [];
         nextTurn = null;
         resetHTML();
     }

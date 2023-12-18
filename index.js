@@ -37,14 +37,12 @@ class Lobby {
     name;
     owner;
     littlePlayers;
-    deconnectedPlayers;
     currGame;
     nextPlayer;
     constructor(n, id){
         this.name = n;
         this.owner = id;
         this.littlePlayers = [id];
-        this.deconnectedPlayers = [];
         this.currGame = null;
         this.nextPlayer = null;
         lobbyArray.push(this);
@@ -96,6 +94,16 @@ class Lobby {
             }
             ++i;
         }
+    }
+
+    isFilledWithBots(){
+        let res = true;
+        this.littlePlayers.forEach(p => {
+            if(p.slice(" ")[0] != "bot"){
+                res = false;
+            }
+        })
+        return res;
     }
 }
 
@@ -222,7 +230,7 @@ io.on('connection', function (socket) {
             console.log("Sortie de l'utilisateur " + currentID);
             // si client était dans un lobby
             if(currentLobby){
-                // déconnexion du lobby
+                // déconnexion du lobbyknownCards.length-1
                 disconnectFromLobby();
                 currentLobby.getClients().forEach(client => {
                     clients[client].emit("playerList", JSON.stringify(currentLobby.littlePlayers));
@@ -262,14 +270,8 @@ io.on('connection', function (socket) {
             //let reset = false;
             if(currentLobby.currGame != null){
                 /**DECONNEXION D'UN JOUEUR -> BOT */
-                currentLobby.deconnectedPlayers.push(currentID);
                 sendLogToLobby(false, currentID + " a quitté la partie. Il est remplacé par un bot.");
-                /** RESET DE LA PARTIE */
-                //reset = true;
-                //currentLobby.currGame = null;
-                //sendLogToLobby(false, "Partie interrompue");
                 currentLobby.addPlayer("bot");
-                sendLogToLobby(false, currentID + " à été remplacé par un bot");
             }
             currentLobby.getClients().forEach(client => {
                 if(client == currentLobby.owner){
@@ -284,7 +286,8 @@ io.on('connection', function (socket) {
 
     function checkLobby(){
         // double vérification du currentLobby
-        if(currentLobby != null && currentLobby.littlePlayers.length == 0){
+        if(currentLobby != null && (currentLobby.littlePlayers.length == 0
+        || currentLobby.isFilledWithBots())){
             console.log("Suppression du lobby : " + currentLobby.name);
             sendLogToLobby(true, "Suppression du lobby");
             const index = lobbyArray.indexOf(currentLobby);
