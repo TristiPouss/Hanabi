@@ -44,9 +44,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
     const card_width = 100;
     const card_height = 140;
-    let round = null;
 
     let selectedCard = null;
+    let knownCards = {};
 
     let actionHint;
     let cardstacks = document.querySelectorAll(".cardstack");
@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const popup = new Popup({
         id: "override",
         title: "Donner un indice",
-        content: `Choisissez l'information de la carte sélectionnée à indiquer :,
+        content: `Choisissez l'information de la carte sélectionnée à indiquer
         {btn-value-hint}[Valeur]{btn-color-hint}[Couleur]`,
         sideMargin: "1.5em",
         fontSizeMultiplier: "1.2",
@@ -95,10 +95,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
     /************************************************
-     *                                             *
-     *              Socket Events                  *
-     *                                             *
-     * *********************************************/
+     *                                              *
+     *              Socket Events                   *
+     *                                              *
+     ************************************************/
 
     // Reset
     socket.on("reset", function (){
@@ -192,6 +192,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
         let res = JSON.parse(e);
         nextTurn = res.turn;
+        knownCards = {};
         displayPlayersHands(res.playersCards);
         displayHand(res.nb_card);
         document.querySelector("#nbHints").innerHTML  = "Indices restants : " + res.nb_hints;
@@ -214,6 +215,26 @@ document.addEventListener("DOMContentLoaded", function() {
         document.querySelector("#nbFails").innerHTML  = "Nombre d'erreurs : " + res.nb_fails;
     });
     
+    socket.on("hint",function(e){
+        let res = JSON.parse(e);
+        console.log(res);
+        console.log(knownCards);
+        console.log("------");
+        for(let i = 0; i<res.cards.length; ++i){
+            if(knownCards[res.cards[i]] === undefined){
+                knownCards[res.cards[i]] = {number:null, color:null};
+            }
+            if(Number.isInteger(parseInt(res.value))){
+                knownCards[res.cards[i]].number = res.value;
+            }else{
+                knownCards[res.cards[i]].color = res.value;
+            }
+        }
+        console.log(knownCards);
+        canvasHand.innerHTML = "";
+        displayHand(res.nb_card);
+    });
+
     socket.on("updateHints",function(e){
         let res = JSON.parse(e);
         nextTurn = res.turn;
@@ -419,6 +440,8 @@ document.addEventListener("DOMContentLoaded", function() {
         userArray = [];
         lobbyArray = [];
         selectedCard = null;
+        knownCards = {};
+        nextTurn = null;
         resetHTML();
     }
 
@@ -582,10 +605,17 @@ document.addEventListener("DOMContentLoaded", function() {
         }
 
         ctx.font = "30px Rei";
+
         ctx.strokeStyle = "rgba(0,0,0,0.5)";
-        ctx.strokeText(card.value, 10, 50);
         ctx.fillStyle = card.color;
-        ctx.fillText(card.value, 10, 50);
+        ctx.strokeText(card.value, 15, 30);
+        ctx.fillText(card.value, 15, 30);
+
+        ctx.scale(-1, -1);
+        ctx.strokeText(card.value, -(card_width-10), -(card_height-30));
+        ctx.fillText(card.value, -(card_width-10), -(card_height-30));
+        ctx.scale(1, 1);
+
         cardDiv.setAttribute("value", card.value+" "+card.color);
 
         if (makeClickable){
@@ -606,14 +636,40 @@ document.addEventListener("DOMContentLoaded", function() {
         return cardDiv;
     }
 
-    function displayOwnCards(){
+    function displayOwnCards(curr_number){
         let cardDiv = document.createElement("canvas");
             cardDiv.setAttribute("class", "card");
             cardDiv.setAttribute("width", card_width);
             cardDiv.setAttribute("height", card_height);
             let ctx = cardDiv.getContext("2d");
-            ctx.fillStyle = "grey";
+
+            let c = "grey";
+            if( knownCards[curr_number] !== undefined 
+            && knownCards[curr_number].color !== null){
+                c = knownCards[curr_number].color;
+            }
+
+            ctx.fillStyle = c;
             ctx.fillRect(0, 0, card_width, card_height);       
+
+            ctx.font = "30px Rei";
+            ctx.strokeStyle = "rgba(0,0,0,0.5)";
+            ctx.fillStyle = "white";
+
+            let n = "?";
+            if( knownCards[curr_number] !== undefined 
+            && knownCards[curr_number].number !== null){
+                n = knownCards[curr_number].number;
+            }
+
+            ctx.strokeText(n, 15, 30);
+            ctx.fillText(n, 15, 30);
+
+            ctx.scale(-1, -1);
+            ctx.strokeText(n, -(card_width-10), -(card_height-30));
+            ctx.fillText(n, -(card_width-10), -(card_height-30));
+            ctx.scale(1, 1);
+
             cardDiv.addEventListener("click", function(e) {
                 if (selectedCard != null){
                     selectedCard.classList.remove('selectedCard');
@@ -639,7 +695,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function displayHand(numberCards) {
         for(let i = 0;i<numberCards;i++){
-            let cardDiv = displayOwnCards();
+            let cardDiv = displayOwnCards(i+1);
             canvasHand.appendChild(cardDiv);
         }
     }
