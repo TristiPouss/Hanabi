@@ -195,6 +195,7 @@ document.addEventListener("DOMContentLoaded", function() {
         let res = JSON.parse(e);
         nextTurn = res.turn;
         knownCards = [];
+        lobbyLog.innerHTML = "";
         displayPlayersHands(res.playersCards);
         displayHand(res.nb_card);
         document.querySelector("#nbHints").innerHTML  = "Indices restants : " + res.nb_hints;
@@ -221,9 +222,9 @@ document.addEventListener("DOMContentLoaded", function() {
     
     socket.on("hint",function(e){
         let res = JSON.parse(e);
-        console.log(res);
-        console.log(knownCards);
-        console.log("------");
+        //console.log(res);
+        //console.log(knownCards);
+        //console.log("------");
         for(let i = 0; i<res.nb_card; ++i){
             if(knownCards[i] === undefined){
                 knownCards[i] = {number:null, color:null};
@@ -237,7 +238,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 knownCards[count].color = res.value;
             }
         }
-        console.log(knownCards);
+        //console.log(knownCards);
         canvasHand.innerHTML = "";
         displayHand(res.nb_card);
     });
@@ -411,15 +412,15 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function knownHintChange(n){
-        console.log("change");
-        console.log(knownCards);
-        console.log(n);
+        //console.log("change");
+        //console.log(knownCards);
+        //console.log(n);
         for(let i = n; i<knownCards.length-1; ++i){
             knownCards[i] = knownCards[i+1];
             console.log(knownCards[i]);
         }
         knownCards[knownCards.length-1] = {number:null, color:null};
-        console.log(knownCards);
+        //console.log(knownCards);
     }
 
     document.addEventListener("keypress", function(e){

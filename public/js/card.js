@@ -135,7 +135,7 @@ class Game{
 
         let card = this.hands[player][indexCard];
         let stackSelected = this.stacks[indexStack];
-        console.log(card);
+        //console.log(card);
         let isAGoodCard = true;
         if (stackSelected.length == 0 && card.get_value() == 1){
             this.stacks.forEach(stack => {
@@ -148,7 +148,7 @@ class Game{
                 }});
         } else {
             if (card.get_value() != (stackSelected.length+1) || card.get_color() != stackSelected[0].get_color()){
-                console.log("pas la bonne carte");
+                //console.log("pas la bonne carte");
                 isAGoodCard = false;
             }
         }
@@ -213,7 +213,7 @@ class Game{
 
         cards.forEach(function (card,index){
             if (!played){
-                console.log(this)
+                //console.log(this)
                 let stackSelected;
                 if (card.get_value() == 1){
                     this.stacks.forEach(stack => {
@@ -261,6 +261,16 @@ class Game{
             played = true;
             return 'discard'
         }
+    }
+
+    isFilledWithBots(){
+        let res = true;
+        this.masters_players.forEach(p => {
+            if(p.split(" ")[0] != "bot"){
+                res = false;
+            }
+        })
+        return res;
     }
 }
 module.exports = {Card, Deck, Game};

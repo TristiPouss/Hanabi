@@ -4,7 +4,7 @@ const game = require('./public/js/card.js');
 const app = express();
 const port = 8080;
 const server = app.listen(port, function() {
-    console.log("C'est parti ! En attente de connexion sur le port "+port+"...");
+    console.log("Connexion sur le port "+port+"...");
 });
 
 // Ecoute sur les websockets
@@ -22,6 +22,7 @@ app.get('/', function(req, res) {
 /*** Gestion des lobbys ***/
 
 let lobbyArray = [];
+let joinableLobbyArray = [];
 
 function seekLobby(name){
     let res = null;
@@ -46,10 +47,15 @@ class Lobby {
         this.currGame = null;
         this.nextPlayer = null;
         lobbyArray.push(this);
+        joinableLobbyArray.push(this);
     }
 
     addPlayer(n){
         return this.littlePlayers.push(n);
+    }
+
+    hasPlayer(n){
+        return this.littlePlayers.includes(n);
     }
 
     launchGame(){
@@ -84,12 +90,13 @@ class Lobby {
         let i = 0;
         while(i < this.littlePlayers.length){
             let curr = this.littlePlayers[i];
-            if(curr != this.owner){
+            if(curr != this.owner && curr.split(" ")[0] != "bot"){
                 this.owner = curr;
                 return;
             }
             ++i;
         }
+        return false;
     }
 
     isFilledWithBots(){
@@ -100,6 +107,15 @@ class Lobby {
             }
         })
         return res;
+    }
+
+    rmBots(){
+        for(let i = 0; i<this.littlePlayers.length; ++i){
+            let curr = this.littlePlayers[i];
+            if(curr.split(" ")[0] == "bot"){
+                this.rmPlayer(curr);
+            }
+        }
     }
 }
 
@@ -159,7 +175,7 @@ io.on('connection', function (socket) {
         // envoi de la nouvelle liste à tous les clients connectés
         io.sockets.emit("listClient", Object.keys(clients));
         // envoi de la liste de lobby à ce client
-        socket.emit("listLobby", JSON.stringify(lobbyArray));
+        socket.emit("listLobby", JSON.stringify(joinableLobbyArray));
     });
 
     /**
@@ -178,7 +194,7 @@ io.on('connection', function (socket) {
         socket.emit("lobbyConnection", JSON.stringify({lobby: currentLobby.name, isOwner: true}));
         sendLogToLobby(true, "Le lobby a bien été créé.");
         // envoi de la nouvelle liste de lobby à tous les clients connectés
-        io.sockets.emit("listLobby", JSON.stringify(lobbyArray));
+        io.sockets.emit("listLobby", JSON.stringify(joinableLobbyArray));
     });
 
     socket.on("connectLobby", function(name){
@@ -192,7 +208,7 @@ io.on('connection', function (socket) {
             socket.emit("lobbyConnection", JSON.stringify({lobby: name, isOwner: false}));
             sendLogToLobby(true, currentID + " a rejoint le lobby.");
             // envoi de la nouvelle liste de lobby à tous les clients connectés
-            io.sockets.emit("listLobby", JSON.stringify(lobbyArray));
+            io.sockets.emit("listLobby", JSON.stringify(joinableLobbyArray));
         }else {
             console.log("Le client n'est pas dans un lobby");
             socket.emit("reset");
@@ -212,7 +228,7 @@ io.on('connection', function (socket) {
             });
             checkLobby(); // supprime le lobby si il est vide
             // envoi de la nouvelle liste de lobby à tous les clients connectés
-            io.sockets.emit("listLobby", JSON.stringify(lobbyArray));
+            io.sockets.emit("listLobby", JSON.stringify(joinableLobbyArray));
         }else {
             console.log("Le client n'est pas dans un lobby");
             socket.emit("reset");
@@ -232,7 +248,7 @@ io.on('connection', function (socket) {
                     clients[client].emit("playerList", JSON.stringify(currentLobby.littlePlayers));
                 });
                 checkLobby();
-                io.sockets.emit("listLobby", JSON.stringify(lobbyArray));
+                io.sockets.emit("listLobby", JSON.stringify(joinableLobbyArray));
             }
             // suppression de l'entrée
             delete clients[currentID];
@@ -257,7 +273,7 @@ io.on('connection', function (socket) {
             clients[client].emit("log", JSON.stringify(new Log(isLobby, txt, Date.now())));
             //console.log("Envoi d'un message au lobby " + currentLobby.name);
         });
-        setTimeout(function(){}, 1000);
+        //setTimeout(function(){}, 1000);
     }
 
     function disconnectFromLobby(){
@@ -269,18 +285,14 @@ io.on('connection', function (socket) {
                 /**DECONNEXION D'UN JOUEUR -> BOT */
                 sendLogToLobby(false, currentID + " a quitté la partie. Il est remplacé par un bot.");
                 let bot = "bot";
-                while(currentLobby.littlePlayers.includes(bot)){
-                    // Mostly used for bots
+                while(currentLobby.hasPlayer(bot)){
                     bot += " (1)";
                 }
-                for(let i = 0; i<currentLobby.littlePlayers.length; ++i){
-                    if(currentLobby.littlePlayers[i] == currentID){
-                        currentLobby.littlePlayers[i] = bot;
-                    }
-                }
-                currentLobby.rmPlayer(currentID);
+                currentLobby.addPlayer(bot);
+                checkLobby();
                 currentLobby.currGame.hands[bot] = currentLobby.currGame.hands[currentID];
                 delete currentLobby.currGame.hands[currentID];
+                console.log(currentLobby);
                 for(let i = 0; i<currentLobby.currGame.masters_players.length; ++i){
                     if(currentLobby.currGame.masters_players[i] == currentID){
                         currentLobby.currGame.masters_players[i] = bot;
@@ -307,6 +319,8 @@ io.on('connection', function (socket) {
             sendLogToLobby(true, "Suppression du lobby");
             const index = lobbyArray.indexOf(currentLobby);
             if (index > -1) lobbyArray.splice(index, 1);
+            const index1 = joinableLobbyArray.indexOf(currentLobby);
+            if (index1 > -1) joinableLobbyArray.splice(index1, 1);
         }
     }
 
@@ -335,6 +349,8 @@ io.on('connection', function (socket) {
         && currentLobby.owner == currentID
         && currentLobby.currGame == null
         && currentLobby.littlePlayers.length > 1){
+            const index = joinableLobbyArray.indexOf(currentLobby);
+            if (index > -1) joinableLobbyArray.splice(index, 1);
             currentLobby.launchGame();
             sendLogToLobby(false, "Lancement de la partie");
             currentLobby.nextPlayer = currentLobby.currGame.masters_players[0];
@@ -343,8 +359,9 @@ io.on('connection', function (socket) {
                 clients[client].emit("launchGame", JSON.stringify(data));
             });
             sendLogToLobby(false, "C'est au tour de " + currentLobby.nextPlayer);
+            io.sockets.emit("listLobby", JSON.stringify(joinableLobbyArray));
         }else {
-            console.log("La partie ne peut pas être lancée");
+            //console.log("La partie ne peut pas être lancée");
             sendLogToLobby(false, "Les conditions pour lancer la partie ne sont pas remplies");
         }
     });
@@ -411,7 +428,7 @@ io.on('connection', function (socket) {
     });
 
     function checkEndGame(player){
-        if(currentLobby.currGame.endGame(player)){
+        if(currentLobby.currGame.endGame(player) || currentLobby.currGame.isFilledWithBots()){
             sendLogToLobby(false, "Fin de la partie");
             let score = currentLobby.currGame.processScore();
             sendLogToLobby(false, "Score : " + score);
@@ -421,7 +438,10 @@ io.on('connection', function (socket) {
                 }
                 clients[client].emit("endGame", JSON.stringify(score));
             });
+            currentLobby.rmBots();
             currentLobby.currGame = null;
+            joinableLobbyArray.push(currentLobby);
+            io.sockets.emit("listLobby", JSON.stringify(joinableLobbyArray));
             return true;
         }
         return false;
@@ -469,11 +489,8 @@ io.on('connection', function (socket) {
         } else {
                 let playerGiven;
                 do{
-                    let x = currentLobby.littlePlayers[Math.floor(Math.random() * currentLobby.littlePlayers.length)];
-                    playerGiven = x;
-                    console.log(x);
-                    console.log(playerGiven);
-                }while(playerGiven.splice(" ")[0] == "bot");
+                    playerGiven = currentLobby.littlePlayers[Math.floor(Math.random() * currentLobby.littlePlayers.length)];
+                }while(playerGiven.split(" ")[0] == "bot");
                 let index = Math.floor(Math.random() * currentLobby.currGame.hands[playerGiven].length);
                 let info = Math.floor(Math.random() * 2) < 1 ? currentLobby.currGame.hands[playerGiven][index].get_value() : currentLobby.currGame.hands[playerGiven][index].get_color();
                 
@@ -487,11 +504,6 @@ io.on('connection', function (socket) {
         }
 
     }
-
-
-    /***************************** */
-    /*         BOT PART            */
-    /***************************** */
 
     // Yippie 
 
