@@ -45,6 +45,8 @@ document.addEventListener("DOMContentLoaded", function() {
     const card_width = 100;
     const card_height = 140;
 
+    const discardDiv = document.getElementById("discard");
+
     let selectedCard = null;
     let knownCards = {};
 
@@ -210,8 +212,10 @@ document.addEventListener("DOMContentLoaded", function() {
         displayPlayersHands(res.playersCards);
         displayStacks(res.stacks);
         displayHand(res.nb_card);
+        if (res.discard_card != undefined){
+            displayDiscard(res.discard_card);
+        }
         document.querySelector("#nbHints").innerHTML  = "Indices restants : " + res.nb_hints;
-        let round = res.round;
         document.querySelector("#nbFails").innerHTML  = "Nombre d'erreurs : " + res.nb_fails;
     });
     
@@ -256,6 +260,7 @@ document.addEventListener("DOMContentLoaded", function() {
         cardstacks.forEach(stack => {
             stack.innerHTML = "";
         })
+        discardDiv.innerHTML = "";
     });
 
     socket.on("wrongAction", function(res){
@@ -467,6 +472,8 @@ document.addEventListener("DOMContentLoaded", function() {
         cardstacks.forEach(stack => {
             stack.innerHTML = "";
         })
+        
+        discardDiv.innerHTML = "";
 
         btnCommencer.setAttribute('disabled',true);
         btnCommencer.setAttribute("style","display:none");
@@ -645,6 +652,12 @@ document.addEventListener("DOMContentLoaded", function() {
         return cardDiv;
     }
 
+
+    function displayDiscard(discardCard) {
+        discardDiv.innerHTML = "";
+        discardDiv.appendChild(displayCard(discardCard,false));
+       
+    }
     function displayOwnCards(curr_number){
         let cardDiv = document.createElement("canvas");
             cardDiv.setAttribute("class", "card");

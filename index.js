@@ -100,6 +100,7 @@ class GameData {
         this.nb_hints = Lobby.currGame.hints;
         this.nb_fails = Lobby.currGame.fails
         this.stacks = Lobby.currGame.stacks;
+        this.discard_card = undefined;
         Object.keys(Lobby.currGame.hands).forEach(clientName => {
             if (clientName != Player){
                 this.playersCards[clientName] = Lobby.currGame.hands[clientName];
@@ -350,12 +351,15 @@ io.on('connection', function (socket) {
             if (currentLobby.currGame.discard_card(currentID, res.indexCard)){;
                 if(!checkEndGame(currentID)){
                     changeTurn()
+                    currentLobby.getClients().forEach(client => {
+                        let data = new GameData(currentLobby,client);
+                        data.discard_card = currentLobby.currGame.discard[currentLobby.currGame.discard.length - 1]; 
+                        clients[client].emit("updateGame", JSON.stringify(data))
+                    });
+                    
                 };
-                currentLobby.getClients().forEach(client => {
-                    let data = new GameData(currentLobby,client);
-                    clients[client].emit("updateGame", JSON.stringify(data))
-                });
                 
+           
             } else clients[currentID].emit("wrongAction", "Impossible de defausser la carte");
         }else{console.log("Le client n'est pas dans un lobby");}
     });
@@ -365,12 +369,14 @@ io.on('connection', function (socket) {
             res = JSON.parse(res);
             currentLobby.currGame.play_card(currentID, res.indexCard, res.indexStack)
             if(!checkEndGame(currentID)){
-                changeTurn()
+                changeTurn();
+                currentLobby.getClients().forEach(client => {
+                    let data = new GameData(currentLobby,client);
+                    data.discard_card = currentLobby.currGame.discard[currentLobby.currGame.discard.length - 1]; 
+                    clients[client].emit("updateGame", JSON.stringify(data))
+                });
             };
-            currentLobby.getClients().forEach(client => {
-                let data = new GameData(currentLobby,client);
-                clients[client].emit("updateGame", JSON.stringify(data))
-            });
+            
         }else console.log("Le client n'est pas dans un lobby");
     });
 
@@ -403,5 +409,5 @@ io.on('connection', function (socket) {
     /*         BOT PART            */
     /***************************** */
 
-    
+
 });
