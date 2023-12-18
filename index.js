@@ -397,4 +397,11 @@ io.on('connection', function (socket) {
         });
         sendLogToLobby(false, "C'est au tour de " + currentLobby.nextPlayer);
     }
+
+
+    /***************************** */
+    /*         BOT PART            */
+    /***************************** */
+
+    
 });
