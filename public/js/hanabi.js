@@ -275,10 +275,6 @@ document.addEventListener("DOMContentLoaded", function() {
         let res = JSON.parse(e);
         let score = res.score;
 
-        if(isOwner){
-            btnCommencer.removeAttribute('disabled');
-            btnCommencer.setAttribute("style","display:block");
-        }
         canvasHand.innerHTML = "";
         canvasPlayer1.innerHTML = "";
         canvasPlayer2.innerHTML = "";
@@ -286,6 +282,7 @@ document.addEventListener("DOMContentLoaded", function() {
         cardstacks.forEach(stack => {
             stack.innerHTML = "";
         })
+        discardDiv.innerHTML = "";
     });
 
 

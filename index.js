@@ -264,11 +264,11 @@ io.on('connection', function (socket) {
                 //reset = true;
                 //currentLobby.currGame = null;
                 //sendLogToLobby(false, "Partie interrompue");
+                if (currentLobby.nextPlayer == currentID){
+                    bot_turn();
+                }
             }
             currentLobby.getClients().forEach(client => {
-                if(client == currentLobby.owner){
-                    clients[client].emit('newOwner');
-                }
                 if(reset){
                     clients[client].emit("resetGame");
                 }
@@ -394,6 +394,9 @@ io.on('connection', function (socket) {
             let score = currentLobby.currGame.processScore();
             sendLogToLobby(false, "Score : " + score);
             currentLobby.getClients().forEach(client => {
+                if(client == currentLobby.owner){
+                    clients[client].emit('newOwner');
+                }
                 clients[client].emit("endGame", JSON.stringify(score));
             });
             currentLobby.currGame = null;
@@ -401,7 +404,6 @@ io.on('connection', function (socket) {
         }
         return false;
     }
-
     function changeTurn(){
         currentLobby.nextPlayer = currentLobby.currGame.nextPlayer(currentLobby.nextPlayer);
         let playerFound = false;
@@ -416,8 +418,16 @@ io.on('connection', function (socket) {
             sendLogToLobby(false, "C'est au tour de " + currentLobby.nextPlayer);
             return;
         }
+        bot_turn();
+    }
+
+
+    /***************************** */
+    /*         BOT PART            */
+    /***************************** */
+
+    function bot_turn(){
         sendLogToLobby(false, "C'est au tour du bot qui remplace " + currentLobby.nextPlayer);
-        console.log(currentLobby.currGame);
         let action = currentLobby.currGame.bot_play(currentLobby.nextPlayer);
         if (action == "play"){
             sendLogToLobby(false, "Le bot joue une carte");
@@ -450,11 +460,4 @@ io.on('connection', function (socket) {
         }
 
     }
-
-
-    /***************************** */
-    /*         BOT PART            */
-    /***************************** */
-
-
 });
