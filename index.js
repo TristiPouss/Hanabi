@@ -49,10 +49,6 @@ class Lobby {
     }
 
     addPlayer(n){
-        while(this.littlePlayers.includes(n)){
-            // Mostly used for bots
-            n += " (1)";
-        }
         return this.littlePlayers.push(n);
     }
 
@@ -261,6 +257,7 @@ io.on('connection', function (socket) {
             clients[client].emit("log", JSON.stringify(new Log(isLobby, txt, Date.now())));
             //console.log("Envoi d'un message au lobby " + currentLobby.name);
         });
+        setTimeout(function(){}, 1000);
     }
 
     function disconnectFromLobby(){
@@ -271,9 +268,26 @@ io.on('connection', function (socket) {
             if(currentLobby.currGame != null){
                 /**DECONNEXION D'UN JOUEUR -> BOT */
                 sendLogToLobby(false, currentID + " a quitté la partie. Il est remplacé par un bot.");
-                currentLobby.addPlayer("bot");
-
+                let bot = "bot";
+                while(currentLobby.littlePlayers.includes(bot)){
+                    // Mostly used for bots
+                    bot += " (1)";
+                }
+                for(let i = 0; i<currentLobby.littlePlayers.length; ++i){
+                    if(currentLobby.littlePlayers[i] == currentID){
+                        currentLobby.littlePlayers[i] = bot;
+                    }
+                }
+                currentLobby.rmPlayer(currentID);
+                currentLobby.currGame.hands[bot] = currentLobby.currGame.hands[currentID];
+                delete currentLobby.currGame.hands[currentID];
+                for(let i = 0; i<currentLobby.currGame.masters_players.length; ++i){
+                    if(currentLobby.currGame.masters_players[i] == currentID){
+                        currentLobby.currGame.masters_players[i] = bot;
+                    }
+                }
                 if (currentLobby.nextPlayer == currentID){
+                    currentLobby.nextPlayer = bot;
                     bot_turn();
                 }
             }
@@ -376,8 +390,6 @@ io.on('connection', function (socket) {
                     });
                     
                 };
-                
-           
             } else clients[currentID].emit("wrongAction", "Impossible de defausser la carte");
         }else{console.log("Le client n'est pas dans un lobby");}
     });
@@ -436,7 +448,7 @@ io.on('connection', function (socket) {
     /***************************** */
 
     function bot_turn(){
-        sendLogToLobby(false, "C'est au tour du bot qui remplace " + currentLobby.nextPlayer);
+        sendLogToLobby(false, "C'est au tour du bot '" + currentLobby.nextPlayer + "'");
         let action = currentLobby.currGame.bot_play(currentLobby.nextPlayer);
         if (action == "play"){
             sendLogToLobby(false, "Le bot joue une carte");
@@ -455,7 +467,13 @@ io.on('connection', function (socket) {
                 clients[client].emit("updateGame", JSON.stringify(data));
             });
         } else {
-                let playerGiven = currentLobby.littlePlayers[Math.floor(Math.random() * currentLobby.littlePlayers.length)];
+                let playerGiven;
+                do{
+                    let x = currentLobby.littlePlayers[Math.floor(Math.random() * currentLobby.littlePlayers.length)];
+                    playerGiven = x;
+                    console.log(x);
+                    console.log(playerGiven);
+                }while(playerGiven.splice(" ")[0] == "bot");
                 let index = Math.floor(Math.random() * currentLobby.currGame.hands[playerGiven].length);
                 let info = Math.floor(Math.random() * 2) < 1 ? currentLobby.currGame.hands[playerGiven][index].get_value() : currentLobby.currGame.hands[playerGiven][index].get_color();
                 
