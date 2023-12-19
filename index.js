@@ -292,7 +292,7 @@ io.on('connection', function (socket) {
                 checkLobby();
                 currentLobby.currGame.hands[bot] = currentLobby.currGame.hands[currentID];
                 delete currentLobby.currGame.hands[currentID];
-                console.log(currentLobby);
+                //console.log(currentLobby);
                 for(let i = 0; i<currentLobby.currGame.masters_players.length; ++i){
                     if(currentLobby.currGame.masters_players[i] == currentID){
                         currentLobby.currGame.masters_players[i] = bot;
@@ -367,7 +367,7 @@ io.on('connection', function (socket) {
     });
 
     socket.on("hint", function(res){
-        if(currentLobby != null){
+        if(currentLobby != null && currentLobby.currGame != null){
             res = JSON.parse(res);
             let resp = currentLobby.currGame.give_information(res.idPlayer, res.value);
             if(resp){
@@ -395,7 +395,7 @@ io.on('connection', function (socket) {
     });
 
     socket.on("discard", function(res){
-        if(currentLobby != null){
+        if(currentLobby != null && currentLobby.currGame != null){
             res = JSON.parse(res);
             if (currentLobby.currGame.discard_card(currentID, res.indexCard)){;
                 if(!checkEndGame(currentID)){
@@ -412,7 +412,7 @@ io.on('connection', function (socket) {
     });
 
     socket.on("play", function(res){
-        if(currentLobby != null){
+        if(currentLobby != null && currentLobby.currGame != null){
             res = JSON.parse(res);
             currentLobby.currGame.play_card(currentID, res.indexCard, res.indexStack)
             if(!checkEndGame(currentID)){
